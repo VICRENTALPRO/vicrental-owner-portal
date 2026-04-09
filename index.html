@@ -1133,6 +1133,7 @@ const API_BASE = 'https://vicrental-backend1-production.up.railway.app/api';
       <div class="ftab ftab-pending" id="ftab-pending" onclick="setView('issues','pending')">
         Awaiting Approval <span id="pendingTabCount" style="display:none;background:#6040a8;color:#fff;font-size:0.6rem;padding:0 5px;border-radius:10px;margin-left:4px;">0</span>
       </div>
+      <div class="ftab" id="ftab-checklist" onclick="setView('checklist','all')" style="border-color:#0A2F5C;color:#0A2F5C;background:#fff;">📋 Min. Standards</div>
       <div class="ftab" id="ftab-vault" onclick="setView('vault','all')" style="border-color:#c8b8e8;color:#6040a8;background:#fff;margin-left:auto;">🗄️ Documents</div>
       <div class="ftab" id="ftab-quotes" onclick="setView('quotes','all')" style="border-color:#a7d8be;color:var(--green);background:#fff;position:relative;">
         💰 Quotes
@@ -1142,6 +1143,46 @@ const API_BASE = 'https://vicrental-backend1-production.up.railway.app/api';
 
     <!-- Portal Content (issues) -->
     <div id="portalContent"></div>
+
+    <!-- Minimum Standards Checklist Content -->
+    <div id="checklistContent" style="display:none;">
+      <div style="background:#eaf6fe;border:2px solid #0A2F5C;border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;gap:14px;align-items:flex-start;">
+        <span style="font-size:1.4rem;flex-shrink:0;">📋</span>
+        <div>
+          <div style="font-size:0.88rem;font-weight:800;color:#0A2F5C;margin-bottom:4px;">Victorian Rental Minimum Standards Checklist</div>
+          <div style="font-size:0.78rem;color:#475569;line-height:1.7;">As a rental property owner, your property must meet Victoria's minimum standards under the <em>Residential Tenancies Act 1997</em> (effective 29 March 2021). Use this checklist to confirm compliance. Once complete, save it to your Document Vault.</div>
+        </div>
+      </div>
+
+      <!-- Property info for report -->
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;margin-bottom:20px;">
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:14px;">Property Details</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+          <div><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Property Address</label><input type="text" id="msAddress" placeholder="Auto-filled from your property" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;"></div>
+          <div><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Inspection Date</label><input type="date" id="msDate" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;"></div>
+          <div><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Inspected By</label><input type="text" id="msInspector" placeholder="Name / company" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;"></div>
+        </div>
+      </div>
+
+      <!-- Standards list -->
+      <div id="msStandardsList"></div>
+
+      <!-- Summary + save -->
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-top:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:0.88rem;font-weight:800;color:#0A2F5C;margin-bottom:4px;">Checklist Summary</div>
+            <div style="font-size:0.82rem;color:#64748b;" id="msSummaryText">Complete all items above to generate your report.</div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button onclick="downloadMinStandards()" style="padding:10px 20px;background:#0A2F5C;color:#fff;border:none;border-radius:9px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;">⬇️ Download Report</button>
+            <button onclick="saveMinStandardsToVault()" style="padding:10px 20px;background:#16a34a;color:#fff;border:none;border-radius:9px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;">🗄️ Save to Vault</button>
+          </div>
+        </div>
+        <div id="msSaveMsg" style="display:none;margin-top:12px;padding:10px 14px;background:#dcfce7;color:#16a34a;border-radius:8px;font-size:0.82rem;font-weight:600;"></div>
+      </div>
+    </div>
+
 
     <!-- Vault Content -->
     <div id="vaultContent" style="display:none;">      <div style="background:var(--gold-pale);border:1px solid #e8c86a;border-radius:10px;padding:12px 16px;font-size:0.78rem;color:#6b4800;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start;">
@@ -1552,9 +1593,10 @@ let pendingAction = null; // { id, type: 'approve'|'reject' }
 function setView(view, filter) {
   activeView = view;
   // Hide all content panels
-  document.getElementById('portalContent').style.display  = 'none';
-  document.getElementById('vaultContent').style.display   = 'none';
-  document.getElementById('quotesContent').style.display  = 'none';
+  document.getElementById('portalContent').style.display    = 'none';
+  document.getElementById('vaultContent').style.display     = 'none';
+  document.getElementById('quotesContent').style.display    = 'none';
+  document.getElementById('checklistContent').style.display = 'none';
   document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
 
   if (view === 'issues') {
@@ -1574,11 +1616,265 @@ function setView(view, filter) {
     document.querySelectorAll('[id^="oqf-"]').forEach(el => el.classList.remove('active'));
     document.getElementById('oqf-all')?.classList.add('active');
     renderOwnerQuotes();
+  } else if (view === 'checklist') {
+    document.getElementById('checklistContent').style.display = '';
+    document.getElementById('ftab-checklist')?.classList.add('active');
+    initMinStandards();
   }
 }
 
 // Keep backward compat
 function setFilter(f) { setView('issues', f); }
+
+// ── Victorian Minimum Standards Checklist ─────────────────────────────────────
+const MS_STANDARDS = [
+  { id:'ms01', category:'Locks', icon:'🔒', title:'Locks on all external doors and windows',
+    desc:'All external entry doors must have a functioning deadlock or security screen door. Windows within 2m of ground level must have a functioning lock or latch.',
+    legal:'Residential Tenancies Regulations 2021, r.6', freq:'Each tenancy' },
+  { id:'ms02', category:'Locks', icon:'🔒', title:'Locks able to be operated without key from inside',
+    desc:'Internal locking mechanisms on external doors and windows must be operable from inside without a key for emergency exit.',
+    legal:'Residential Tenancies Regulations 2021, r.6', freq:'Each tenancy' },
+  { id:'ms03', category:'Lighting', icon:'💡', title:'Adequate lighting in all rooms',
+    desc:'Each room (other than storage rooms and garages) must have a working light fitting connected to electricity. External areas used for entry/exit must be lit.',
+    legal:'Residential Tenancies Regulations 2021, r.7', freq:'Each tenancy' },
+  { id:'ms04', category:'Ventilation', icon:'💨', title:'Adequate ventilation in all rooms',
+    desc:'Each room must have a window, door, or other device that opens to allow ventilation. Bathrooms and ensuites must have mechanical ventilation or a window to outside.',
+    legal:'Residential Tenancies Regulations 2021, r.8', freq:'Each tenancy' },
+  { id:'ms05', category:'Hot Water', icon:'🚿', title:'Working hot water system',
+    desc:'The property must have a working water heater supplying hot water to all bathrooms and kitchen. Minimum 45°C at outlets.',
+    legal:'Residential Tenancies Regulations 2021, r.9', freq:'Each tenancy' },
+  { id:'ms06', category:'Heating', icon:'🌡️', title:'Fixed heater in main living area',
+    desc:'At least one fixed heater (not a portable heater) must be installed and working in the main living area. Gas, electric or ducted systems are acceptable.',
+    legal:'Residential Tenancies Regulations 2021, r.10', freq:'Each tenancy' },
+  { id:'ms07', category:'Mould & Damp', icon:'🌿', title:'No mould or damp caused by building structure',
+    desc:'The property must be free from mould and dampness caused by a fault in the building — including rising damp, roof leaks and plumbing leaks.',
+    legal:'Residential Tenancies Regulations 2021, r.11', freq:'Ongoing' },
+  { id:'ms08', category:'Kitchen', icon:'🍳', title:'Kitchen with sink, cooktop and food storage',
+    desc:'The kitchen must include a fixed cook top with at least two burners/elements, a working sink with hot and cold water, and adequate food storage space.',
+    legal:'Residential Tenancies Regulations 2021, r.12', freq:'Each tenancy' },
+  { id:'ms09', category:'Bathroom', icon:'🛁', title:'Bathroom with shower or bath, toilet, and handbasin',
+    desc:'The property must have a bathroom with a shower or bath connected to hot and cold water. A toilet and washbasin (with hot and cold water) must be accessible.',
+    legal:'Residential Tenancies Regulations 2021, r.13', freq:'Each tenancy' },
+  { id:'ms10', category:'Laundry', icon:'👕', title:'Laundry facilities or space',
+    desc:'The property must have a laundry tub connected to hot and cold water, or space to install a washing machine with the required connections.',
+    legal:'Residential Tenancies Regulations 2021, r.14', freq:'Each tenancy' },
+  { id:'ms11', category:'Waste', icon:'🗑️', title:'Rubbish and waste disposal facilities',
+    desc:'The property must have suitable facilities for the collection and disposal of rubbish and waste, including connections to services where available.',
+    legal:'Residential Tenancies Regulations 2021, r.15', freq:'Each tenancy' },
+  { id:'ms12', category:'Pest Control', icon:'🐛', title:'Free from pests and vermin at start of tenancy',
+    desc:'The property must be free from rats, mice, cockroaches, fleas and other vermin at the start of each tenancy.',
+    legal:'Residential Tenancies Regulations 2021, r.16', freq:'Start of tenancy' },
+  { id:'ms13', category:'Structural Safety', icon:'🏠', title:'Structurally sound with weatherproof roof and walls',
+    desc:'The property must be structurally sound, with a roof and external walls that keep out wind, rain and cold. Floors must be safe to walk on.',
+    legal:'Residential Tenancies Regulations 2021, r.17', freq:'Ongoing' },
+  { id:'ms14', category:'Privacy', icon:'🪟', title:'Window coverings for privacy in bedrooms',
+    desc:'Each bedroom must have window coverings (blinds, curtains or equivalent) that provide privacy for occupants.',
+    legal:'Residential Tenancies Regulations 2021, r.18', freq:'Each tenancy' },
+];
+
+function initMinStandards() {
+  // Pre-fill address from current property
+  const addrEl = document.getElementById('msAddress');
+  if (addrEl && !addrEl.value && currentProperty) addrEl.value = currentProperty;
+
+  // Set today's date if blank
+  const dateEl = document.getElementById('msDate');
+  if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().split('T')[0];
+
+  renderMinStandards();
+}
+
+function renderMinStandards() {
+  const el = document.getElementById('msStandardsList');
+  if (!el) return;
+
+  const saved = JSON.parse(localStorage.getItem('owner_ms_checklist') || '{}');
+
+  const groups = {};
+  MS_STANDARDS.forEach(s => {
+    if (!groups[s.category]) groups[s.category] = [];
+    groups[s.category].push(s);
+  });
+
+  el.innerHTML = Object.entries(groups).map(([cat, items]) => `
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:14px;">
+      <div style="background:linear-gradient(135deg,#0A2F5C,#0d3870);padding:12px 18px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.1rem;">${items[0].icon}</span>
+        <div style="font-size:0.82rem;font-weight:800;color:#fff;">${cat}</div>
+      </div>
+      ${items.map(s => {
+        const val = saved[s.id] || '';
+        const noteVal = saved[s.id+'_note'] || '';
+        return `<div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;" id="ms_row_${s.id}">
+          <div style="display:flex;align-items:flex-start;gap:14px;">
+            <div style="flex:1;">
+              <div style="font-size:0.85rem;font-weight:700;color:#0A2F5C;margin-bottom:3px;">${s.title}</div>
+              <div style="font-size:0.76rem;color:#64748b;line-height:1.6;margin-bottom:8px;">${s.desc}</div>
+              <div style="font-size:0.68rem;color:#94a3b8;">📖 ${s.legal} · ${s.freq}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;min-width:130px;">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 10px;border-radius:7px;border:2px solid ${val==='compliant'?'#16a34a':'#e2e8f0'};background:${val==='compliant'?'#dcfce7':'#fff'};font-size:0.78rem;font-weight:600;color:${val==='compliant'?'#16a34a':'#475569'};"><input type="radio" name="${s.id}" value="compliant" onchange="msTick('${s.id}',this.value)" ${val==='compliant'?'checked':''} style="accent-color:#16a34a;"> ✅ Compliant</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 10px;border-radius:7px;border:2px solid ${val==='non-compliant'?'#dc2626':'#e2e8f0'};background:${val==='non-compliant'?'#fee2e2':'#fff'};font-size:0.78rem;font-weight:600;color:${val==='non-compliant'?'#dc2626':'#475569'};"><input type="radio" name="${s.id}" value="non-compliant" onchange="msTick('${s.id}',this.value)" ${val==='non-compliant'?'checked':''} style="accent-color:#dc2626;"> ⚠️ Non-Compliant</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 10px;border-radius:7px;border:2px solid ${val==='na'?'#94a3b8':'#e2e8f0'};background:${val==='na'?'#f1f5f9':'#fff'};font-size:0.78rem;font-weight:600;color:${val==='na'?'#475569':'#475569'};"><input type="radio" name="${s.id}" value="na" onchange="msTick('${s.id}',this.value)" ${val==='na'?'checked':''} style="accent-color:#94a3b8;"> N/A</label>
+            </div>
+          </div>
+          <div style="margin-top:8px;"><input type="text" placeholder="Notes (optional)…" value="${noteVal.replace(/"/g,'&quot;')}" onchange="msNote('${s.id}',this.value)" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:7px 11px;font-family:Montserrat,sans-serif;font-size:0.78rem;box-sizing:border-box;background:#fafafa;"></div>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+
+  updateMsSummary();
+}
+
+function msTick(id, value) {
+  const saved = JSON.parse(localStorage.getItem('owner_ms_checklist') || '{}');
+  saved[id] = value;
+  localStorage.setItem('owner_ms_checklist', JSON.stringify(saved));
+  // Re-style the row highlight
+  const row = document.getElementById('ms_row_'+id);
+  if (row) {
+    row.style.background = value === 'non-compliant' ? '#fff5f5' : value === 'compliant' ? '#f0fdf4' : '';
+  }
+  updateMsSummary();
+}
+
+function msNote(id, value) {
+  const saved = JSON.parse(localStorage.getItem('owner_ms_checklist') || '{}');
+  saved[id+'_note'] = value;
+  localStorage.setItem('owner_ms_checklist', JSON.stringify(saved));
+}
+
+function updateMsSummary() {
+  const saved = JSON.parse(localStorage.getItem('owner_ms_checklist') || '{}');
+  const total = MS_STANDARDS.length;
+  const compliant = MS_STANDARDS.filter(s => saved[s.id] === 'compliant').length;
+  const nc = MS_STANDARDS.filter(s => saved[s.id] === 'non-compliant').length;
+  const na = MS_STANDARDS.filter(s => saved[s.id] === 'na').length;
+  const answered = compliant + nc + na;
+  const el = document.getElementById('msSummaryText');
+  if (!el) return;
+  if (answered < total) {
+    el.textContent = `${answered} of ${total} items completed — ${total - answered} remaining.`;
+    el.style.color = '#64748b';
+  } else if (nc > 0) {
+    el.innerHTML = `<span style="color:#dc2626;font-weight:700;">⚠️ ${nc} Non-Compliant item${nc!==1?'s':''}</span> · ${compliant} Compliant · ${na} N/A. Action required.`;
+  } else {
+    el.innerHTML = `<span style="color:#16a34a;font-weight:700;">✅ All items compliant</span> · ${compliant} standards met · ${na} N/A.`;
+  }
+}
+
+function buildMsHtml() {
+  const saved = JSON.parse(localStorage.getItem('owner_ms_checklist') || '{}');
+  const addr = document.getElementById('msAddress')?.value || currentProperty || '—';
+  const date = document.getElementById('msDate')?.value || '';
+  const inspector = document.getElementById('msInspector')?.value || '—';
+  const dateStr = date ? new Date(date).toLocaleDateString('en-AU',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+  const today = new Date().toLocaleDateString('en-AU',{day:'2-digit',month:'long',year:'numeric'});
+
+  const compliant = MS_STANDARDS.filter(s => saved[s.id] === 'compliant').length;
+  const nc = MS_STANDARDS.filter(s => saved[s.id] === 'non-compliant').length;
+  const na = MS_STANDARDS.filter(s => saved[s.id] === 'na').length;
+  const overall = nc === 0 ? 'COMPLIANT' : 'NON-COMPLIANT';
+  const statusCol = nc === 0 ? '#16a34a' : '#dc2626';
+  const statusBg  = nc === 0 ? '#dcfce7' : '#fee2e2';
+
+  const rows = MS_STANDARDS.map(s => {
+    const val = saved[s.id] || '';
+    const note = saved[s.id+'_note'] || '';
+    const pill = val === 'compliant' ? '<span style="background:#dcfce7;color:#16a34a;border-radius:5px;padding:2px 10px;font-size:11px;font-weight:700;">✅ Compliant</span>'
+      : val === 'non-compliant' ? '<span style="background:#fee2e2;color:#dc2626;border-radius:5px;padding:2px 10px;font-size:11px;font-weight:700;">⚠️ Non-Compliant</span>'
+      : val === 'na' ? '<span style="background:#f1f5f9;color:#64748b;border-radius:5px;padding:2px 10px;font-size:11px;font-weight:700;">N/A</span>'
+      : '<span style="background:#fef9c3;color:#854d0e;border-radius:5px;padding:2px 10px;font-size:11px;font-weight:700;">Not checked</span>';
+    const rowBg = val === 'non-compliant' ? '#fff5f5' : val === 'compliant' ? '#f0fdf4' : '#fff';
+    return `<tr style="background:${rowBg};border-bottom:1px solid #e2e8f0;">
+      <td style="padding:10px 14px;font-size:12px;">${s.icon} <strong>${s.title}</strong><br><span style="color:#64748b;font-size:11px;">${s.category}</span></td>
+      <td style="padding:10px 14px;font-size:11px;color:#475569;">${s.desc}</td>
+      <td style="padding:10px 14px;text-align:center;">${pill}</td>
+      <td style="padding:10px 14px;font-size:11px;color:#64748b;">${note||'—'}</td>
+    </tr>`;
+  }).join('');
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Minimum Standards Checklist</title>
+  <style>body{font-family:Arial,sans-serif;margin:40px;color:#1a1a2e;font-size:13px;}
+  .hdr{display:flex;align-items:center;justify-content:space-between;border-bottom:4px solid #0A2F5C;padding-bottom:16px;margin-bottom:24px;}
+  .logo{font-size:20px;font-weight:800;color:#0A2F5C;}.logo span{color:#5BB8F5;}
+  .status{padding:14px 20px;border-radius:10px;text-align:center;font-size:20px;font-weight:800;margin:20px 0;background:${statusBg};color:${statusCol};border:2px solid ${statusCol};}
+  .info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;background:#f0f4f8;border-radius:10px;padding:14px 18px;margin-bottom:20px;}
+  .info-item .lbl{font-size:10px;color:#666;font-weight:700;text-transform:uppercase;margin-bottom:2px;}.info-item .val{font-size:13px;font-weight:700;color:#0A2F5C;}
+  .summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;}
+  .sum-box{padding:12px 16px;border-radius:8px;text-align:center;}.sum-num{font-size:22px;font-weight:800;}.sum-lbl{font-size:11px;margin-top:2px;}
+  table{width:100%;border-collapse:collapse;}.th{background:#0A2F5C;color:#fff;padding:10px 14px;font-size:11px;text-align:left;}
+  .footer{margin-top:24px;border-top:2px solid #0A2F5C;padding-top:12px;font-size:10px;color:#888;}
+  </style></head><body>
+  <div class="hdr"><div><div class="logo">Vic<span>Rental</span> PRO</div></div>
+    <div style="text-align:right;font-size:14px;font-weight:800;color:#0A2F5C;">Victorian Rental Minimum Standards<br><span style="font-size:11px;font-weight:400;color:#64748b;">Residential Tenancies Act 1997 (effective 29 March 2021)</span></div>
+  </div>
+  <div class="status">${nc === 0 ? '✅ ' : '⚠️ '}OVERALL STATUS: ${overall}</div>
+  <div class="info">
+    <div class="info-item"><div class="lbl">Property</div><div class="val">${addr}</div></div>
+    <div class="info-item"><div class="lbl">Inspection Date</div><div class="val">${dateStr}</div></div>
+    <div class="info-item"><div class="lbl">Inspected By</div><div class="val">${inspector}</div></div>
+  </div>
+  <div class="summary">
+    <div class="sum-box" style="background:#dcfce7;"><div class="sum-num" style="color:#16a34a;">${compliant}</div><div class="sum-lbl" style="color:#16a34a;">Compliant</div></div>
+    <div class="sum-box" style="background:#fee2e2;"><div class="sum-num" style="color:#dc2626;">${nc}</div><div class="sum-lbl" style="color:#dc2626;">Non-Compliant</div></div>
+    <div class="sum-box" style="background:#f1f5f9;"><div class="sum-num" style="color:#64748b;">${na}</div><div class="sum-lbl" style="color:#64748b;">Not Applicable</div></div>
+  </div>
+  <table><thead><tr>
+    <th class="th" style="width:28%;">Standard</th>
+    <th class="th" style="width:38%;">Requirement</th>
+    <th class="th" style="width:14%;text-align:center;">Status</th>
+    <th class="th" style="width:20%;">Notes</th>
+  </tr></thead><tbody>${rows}</tbody></table>
+  <div class="footer">Generated: ${today} via VicRental Pro Owner Portal · This checklist is a guide only. Not legal advice. Visit Consumer Affairs Victoria for official guidance.</div>
+  </body></html>`;
+}
+
+function downloadMinStandards() {
+  const html = buildMsHtml();
+  const addr = (document.getElementById('msAddress')?.value || 'property').replace(/[^a-z0-9]/gi,'_').substring(0,30);
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'MinStandards_' + addr + '.html';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function saveMinStandardsToVault() {
+  const html = buildMsHtml();
+  const addr = document.getElementById('msAddress')?.value || currentProperty || '—';
+  const date = document.getElementById('msDate')?.value || new Date().toISOString().split('T')[0];
+  const saved = JSON.parse(localStorage.getItem('owner_ms_checklist') || '{}');
+  const nc = MS_STANDARDS.filter(s => saved[s.id] === 'non-compliant').length;
+
+  const docId = 'MS-' + Date.now();
+  const vault = JSON.parse(localStorage.getItem('vicrental_vault') || '[]');
+  vault.unshift({
+    id: docId,
+    name: (nc === 0 ? '✅ Compliant' : '⚠️ Non-Compliant') + ' — Min. Standards Checklist — ' + addr.split(',')[0].trim(),
+    type: 'min_standards',
+    category: 'Compliance Certificate',
+    fileName: 'MinStandards_' + addr.replace(/[^a-z0-9]/gi,'_').substring(0,25) + '.html',
+    property: addr,
+    date: date,
+    uploadedAt: new Date().toISOString(),
+    ownerVisible: true,
+    fileType: 'html',
+    isHtml: true,
+    dataUrl: 'data:text/html;charset=utf-8,' + encodeURIComponent(html),
+  });
+  localStorage.setItem('vicrental_vault', JSON.stringify(vault));
+
+  const msg = document.getElementById('msSaveMsg');
+  if (msg) {
+    msg.textContent = '✅ Saved to Document Vault — view it under the 🗄️ Documents tab.';
+    msg.style.display = '';
+    setTimeout(() => { msg.style.display = 'none'; }, 4000);
+  }
+  renderOwnerVault();
+}
 
 function getEffectiveStatus(item, wo, reviews) {
   const review = reviews[item.id];
