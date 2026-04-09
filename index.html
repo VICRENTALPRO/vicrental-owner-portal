@@ -1076,6 +1076,7 @@ const API_BASE = 'https://vicrental-backend1-production.up.railway.app/api';
     <div class="portal-header-inner">
       <div class="portal-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 200" style="width:170px;height:auto;display:block;"><polygon points="30,10 73,10 105,175 62,175" fill="#fff" opacity="0.9"/><polygon points="80,10 123,10 91,175 48,175" fill="#5BB8F5"/><rect x="48" y="169" width="63" height="8" fill="#fff" opacity="0.9"/><text x="148" y="88" font-family="Montserrat,Arial,sans-serif" font-size="46" font-weight="700" fill="#fff" letter-spacing="-1">Vic<tspan fill="#5BB8F5">Rental</tspan></text><text x="150" y="128" font-family="Montserrat,Arial,sans-serif" font-size="22" font-weight="400" fill="#fff" letter-spacing="10">PRO</text><rect x="150" y="138" width="188" height="3" fill="#5BB8F5"/><text x="150" y="163" font-family="Montserrat,Arial,sans-serif" font-size="11" letter-spacing="1"><tspan fill="#fff" font-weight="700">REPORT</tspan><tspan fill="#5BB8F5"> · </tspan><tspan fill="#fff" font-weight="700">TRACK</tspan><tspan fill="#5BB8F5"> · </tspan><tspan fill="#fff" font-weight="700">COMPLY</tspan></text></svg></div>
       <div class="portal-header-owner">
+        <button onclick="goBackToProperties()" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;padding:6px 14px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:Montserrat,sans-serif;margin-right:8px;">← My Properties</button>
         <span>Signed in as</span>
         <strong id="displayOwnerName">—</strong>
       </div>
@@ -1261,7 +1262,7 @@ function getOwners() {
 // LOGIN / LOGOUT
 // ═══════════════════════════════════════════════
 // Auto-login from URL hash (set by PM portal when pushing property)
-// Format: #setup:name=John Smith&pw=password123
+// Format: #setup:name=John Smith&pw=password123&prop={...json...}
 (function checkUrlSetup() {
   try {
     const hash = window.location.hash;
@@ -1269,16 +1270,35 @@ function getOwners() {
     const params = new URLSearchParams(hash.slice(7));
     const name = params.get('name');
     const pw   = params.get('pw');
+    const propJson = params.get('prop');
     if (!name || !pw) return;
+
     // Store credentials in vrprop_ key so future logins work
     const ownerKey = 'vrprop_' + name.toLowerCase().replace(/\s+/g,'_');
-    const existing = JSON.parse(localStorage.getItem(ownerKey) || '[]');
-    const idx = existing.findIndex(e => e.owner?.toLowerCase() === name.toLowerCase());
-    if (idx !== -1) { existing[idx].portalPassword = pw; }
-    else { existing.push({ owner: name, portalPassword: pw, pushedAt: new Date().toISOString() }); }
+    let existing = JSON.parse(localStorage.getItem(ownerKey) || '[]');
+
+    if (propJson) {
+      // Full property data embedded — save it
+      try {
+        const propData = JSON.parse(propJson);
+        propData.portalPassword = pw; // ensure password is included
+        const idx = existing.findIndex(e => e.address?.toLowerCase() === propData.address?.toLowerCase());
+        if (idx !== -1) { existing[idx] = { ...existing[idx], ...propData }; }
+        else { existing.push(propData); }
+      } catch(e) { /* bad JSON — just store credentials */ }
+    }
+
+    // Always ensure the credential entry exists
+    const credIdx = existing.findIndex(e => e.owner?.toLowerCase() === name.toLowerCase() && !e.address);
+    if (!existing.find(e => e.portalPassword === pw)) {
+      existing.push({ owner: name, portalPassword: pw, pushedAt: new Date().toISOString() });
+    }
+
     localStorage.setItem(ownerKey, JSON.stringify(existing));
-    // Clear hash from URL
+
+    // Clear hash from URL so password isn't visible in address bar
     window.history.replaceState(null, '', window.location.pathname);
+
     // Pre-fill login form
     setTimeout(() => {
       const nameEl = document.getElementById('loginName');
@@ -1458,6 +1478,13 @@ function renderPropertyHome() {
       </div>
     </div>`;
   }).join('');
+}
+
+function goBackToProperties() {
+  currentProperty = '';
+  document.getElementById('portalScreen').classList.remove('visible');
+  document.getElementById('homeScreen').classList.add('active');
+  renderPropertyHome();
 }
 
 function enterPropertyByIndex(idx) {
