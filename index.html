@@ -1271,26 +1271,28 @@ function getOwners() {
     let name, pw, propData = null;
 
     if (hash.startsWith('#vr=')) {
-      // New base64 format
+      // Base64 encoded payload
       const b64 = hash.slice(4);
-      const decoded = JSON.parse(decodeURIComponent(atob(b64)));
+      const decoded = JSON.parse(decodeURIComponent(escape(atob(b64))));
       name = decoded.n;
       pw   = decoded.pw;
-      // Rebuild property data from compact keys
       propData = {
-        address:        decoded.a  || '',
-        owner:          decoded.n  || '',
-        ownerEmail:     decoded.oe || '',
-        tenant:         decoded.t  || '',
-        tenantEmail:    decoded.te || '',
-        tenantMoveIn:   decoded.mi || '',
-        leaseStart:     decoded.ls || '',
-        leaseEnd:       decoded.le || '',
-        rentPcm:        decoded.r  || '',
-        lastRentReview: decoded.rr || '',
-        leaseType:      decoded.lt || '',
-        portalPassword: pw,
-        pushedAt:       new Date().toISOString(),
+        address:             decoded.a  || '',
+        owner:               decoded.n  || '',
+        ownerEmail:          decoded.oe || '',
+        tenant:              decoded.t  || '',
+        tenantEmail:         decoded.te || '',
+        tenantMoveIn:        decoded.mi || '',
+        leaseStart:          decoded.ls || '',
+        leaseEnd:            decoded.le || '',
+        rentPcm:             decoded.r  || '',
+        lastRentReview:      decoded.rr || '',
+        leaseType:           decoded.lt || '',
+        lastInspectionScore: decoded.is || '',
+        lastInspectionGrade: decoded.ig || '',
+        lastInspectionDate:  decoded.id || '',
+        portalPassword:      pw,
+        pushedAt:            new Date().toISOString(),
       };
     } else {
       // Legacy #setup: format
