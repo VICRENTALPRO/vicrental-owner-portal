@@ -1275,6 +1275,34 @@ function doLogin() {
   btn.textContent = 'Signing in…';
   btn.disabled = true;
 
+  // Helper: check local owner accounts (set by PM portal)
+  function tryLocalLogin() {
+    // Check vrprop_ key — PM portal stores owner data there
+    const ownerKey = 'vrprop_' + name.toLowerCase().replace(/\s+/g,'_');
+    const pushed = JSON.parse(localStorage.getItem(ownerKey) || '[]');
+
+    // Also check vicrental_owner_accounts (set when PM registers owner)
+    const accounts = JSON.parse(localStorage.getItem('vicrental_owner_accounts') || '[]');
+    const match = accounts.find(a =>
+      a.name?.toLowerCase() === name.toLowerCase() && a.password === password
+    );
+
+    // Also check legacy getOwners() list
+    const legacyOwners = S.get(KEY_OWNERS, []);
+    const legacyMatch = legacyOwners.find(o =>
+      o.name?.toLowerCase() === name.toLowerCase() && o.password === password
+    );
+
+    if (match || legacyMatch) {
+      errEl.style.display = 'none';
+      btn.textContent = 'Sign In';
+      btn.disabled = false;
+      showPortal(name);
+      return true;
+    }
+    return false;
+  }
+
   fetch('https://vicrental-backend1-production.up.railway.app/api/auth/owner/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1285,6 +1313,8 @@ function doLogin() {
     btn.textContent = 'Sign In';
     btn.disabled = false;
     if (data.error) {
+      // Backend rejected — try local fallback
+      if (tryLocalLogin()) return;
       errEl.textContent = 'Incorrect name or password. Please try again.';
       errEl.style.display = '';
       document.getElementById('loginPassword').value = '';
@@ -1298,6 +1328,8 @@ function doLogin() {
   .catch(() => {
     btn.textContent = 'Sign In';
     btn.disabled = false;
+    // Network error — try local fallback before showing error
+    if (tryLocalLogin()) return;
     errEl.textContent = 'Connection error. Please try again.';
     errEl.style.display = '';
   });
