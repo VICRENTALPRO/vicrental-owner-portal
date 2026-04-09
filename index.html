@@ -1133,7 +1133,7 @@ const API_BASE = 'https://vicrental-backend1-production.up.railway.app/api';
       <div class="ftab ftab-pending" id="ftab-pending" onclick="setView('issues','pending')">
         Awaiting Approval <span id="pendingTabCount" style="display:none;background:#6040a8;color:#fff;font-size:0.6rem;padding:0 5px;border-radius:10px;margin-left:4px;">0</span>
       </div>
-      <div class="ftab" id="ftab-checklist" onclick="setView('checklist','all')" style="border-color:#0A2F5C;color:#0A2F5C;background:#fff;">📋 Min. Standards</div>
+      <div class="ftab" id="ftab-checklist" onclick="setView('checklist','all')" style="border-color:#0A2F5C;color:#0A2F5C;background:#fff;">📋 Disclosure Statement</div>
       <div class="ftab" id="ftab-vault" onclick="setView('vault','all')" style="border-color:#c8b8e8;color:#6040a8;background:#fff;margin-left:auto;">🗄️ Documents</div>
       <div class="ftab" id="ftab-quotes" onclick="setView('quotes','all')" style="border-color:#a7d8be;color:var(--green);background:#fff;position:relative;">
         💰 Quotes
@@ -1144,47 +1144,52 @@ const API_BASE = 'https://vicrental-backend1-production.up.railway.app/api';
     <!-- Portal Content (issues) -->
     <div id="portalContent"></div>
 
-    <!-- Minimum Standards Checklist Content -->
+    <!-- Disclosure Statement Content -->
     <div id="checklistContent" style="display:none;">
       <div style="background:#eaf6fe;border:2px solid #0A2F5C;border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;gap:14px;align-items:flex-start;">
         <span style="font-size:1.4rem;flex-shrink:0;">📋</span>
         <div>
-          <div style="font-size:0.88rem;font-weight:800;color:#0A2F5C;margin-bottom:4px;">Victorian Rental Minimum Standards Checklist</div>
-          <div style="font-size:0.78rem;color:#475569;line-height:1.7;">As a rental property owner, your property must meet Victoria's minimum standards under the <em>Residential Tenancies Act 1997</em> (effective 29 March 2021). Use this checklist to confirm compliance. Once complete, save it to your Document Vault.</div>
+          <div style="font-size:0.88rem;font-weight:800;color:#0A2F5C;margin-bottom:4px;">Rental Property Disclosure Statement — Victoria</div>
+          <div style="font-size:0.78rem;color:#475569;line-height:1.7;">Under the <em>Residential Tenancies Act 1997</em> (Vic), landlords must disclose certain matters to prospective tenants before a rental agreement is entered into. Complete this disclosure statement accurately. Once signed, save it to your Document Vault.</div>
         </div>
       </div>
 
-      <!-- Property info for report -->
-      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;margin-bottom:20px;">
-        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:14px;">Property Details</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
-          <div><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Property Address</label><input type="text" id="msAddress" placeholder="Auto-filled from your property" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;"></div>
-          <div><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Inspection Date</label><input type="date" id="msDate" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;"></div>
-          <div><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Inspected By</label><input type="text" id="msInspector" placeholder="Name / company" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;"></div>
+      <!-- Property & party details -->
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;margin-bottom:16px;">
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:14px;">Property &amp; Party Details</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div style="grid-column:1/-1;"><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Rental Property Address *</label><input type="text" id="dsAddress" placeholder="Full address of the rental property" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;"></div>
+          <div><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Landlord / Owner Name *</label><input type="text" id="dsOwnerName" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;"></div>
+          <div><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Landlord Contact / Agent</label><input type="text" id="dsAgent" placeholder="Property manager or agent name" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;"></div>
+          <div><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Prospective Tenant Name(s)</label><input type="text" id="dsTenantName" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;"></div>
+          <div><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Date of Disclosure</label><input type="date" id="dsDate" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;"></div>
+          <div><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Weekly Rent ($)</label><input type="number" id="dsRent" placeholder="e.g. 550" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;"></div>
         </div>
       </div>
 
-      <!-- Standards list -->
-      <div id="msStandardsList"></div>
+      <!-- Disclosure items -->
+      <div id="dsItemsList"></div>
 
-      <!-- Summary + save -->
-      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-top:20px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
-          <div>
-            <div style="font-size:0.88rem;font-weight:800;color:#0A2F5C;margin-bottom:4px;">Checklist Summary</div>
-            <div style="font-size:0.82rem;color:#64748b;" id="msSummaryText">Complete all items above to generate your report.</div>
-          </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button onclick="downloadMinStandards()" style="padding:10px 20px;background:#0A2F5C;color:#fff;border:none;border-radius:9px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;">⬇️ Download Report</button>
-            <button onclick="saveMinStandardsToVault()" style="padding:10px 20px;background:#16a34a;color:#fff;border:none;border-radius:9px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;">🗄️ Save to Vault</button>
-          </div>
+      <!-- Signature & save -->
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-top:16px;">
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:14px;">Declaration &amp; Signature</div>
+        <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:0.78rem;color:#92400e;line-height:1.7;">
+          ⚠️ <strong>Important:</strong> Providing false or misleading information in a disclosure statement is an offence under the <em>Residential Tenancies Act 1997</em> (Vic). All known material facts must be disclosed.
         </div>
-        <div id="msSaveMsg" style="display:none;margin-top:12px;padding:10px 14px;background:#dcfce7;color:#16a34a;border-radius:8px;font-size:0.82rem;font-weight:600;"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Landlord / Agent Signature</label><input type="text" id="dsSigOwner" placeholder="Type full name as signature" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;font-style:italic;"></div>
+          <div><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Tenant Acknowledgement</label><input type="text" id="dsSigTenant" placeholder="Type full name as acknowledgement" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;font-style:italic;"></div>
+        </div>
+        <div style="margin-bottom:16px;"><label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;"><input type="checkbox" id="dsConfirm" style="margin-top:3px;width:15px;height:15px;flex-shrink:0;accent-color:#0A2F5C;"><span style="font-size:0.78rem;color:#475569;line-height:1.6;">I confirm the information in this disclosure statement is <strong>true and correct</strong> to the best of my knowledge as at the date above, in accordance with the <em>Residential Tenancies Act 1997</em> (Victoria).</span></label></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button onclick="downloadDisclosure()" style="flex:1;padding:10px 20px;background:#0A2F5C;color:#fff;border:none;border-radius:9px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;">⬇️ Download PDF</button>
+          <button onclick="saveDisclosureToVault()" style="flex:1;padding:10px 20px;background:#16a34a;color:#fff;border:none;border-radius:9px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;">🗄️ Save to Vault</button>
+        </div>
+        <div id="dsSaveMsg" style="display:none;margin-top:12px;padding:10px 14px;background:#dcfce7;color:#16a34a;border-radius:8px;font-size:0.82rem;font-weight:600;"></div>
       </div>
     </div>
 
-
-    <!-- Vault Content -->
+    <!-- Vault Content --><!-- Vault Content -->
     <div id="vaultContent" style="display:none;">      <div style="background:var(--gold-pale);border:1px solid #e8c86a;border-radius:10px;padding:12px 16px;font-size:0.78rem;color:#6b4800;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start;">
         <span style="font-size:1.1rem;flex-shrink:0;">🗄️</span>
         <div>Documents shared by your property manager are available below. These may include compliance certificates, invoices, inspection reports, and other important records for your properties.</div>
@@ -1626,63 +1631,278 @@ function setView(view, filter) {
 // Keep backward compat
 function setFilter(f) { setView('issues', f); }
 
-// ── Victorian Minimum Standards Checklist ─────────────────────────────────────
-const MS_STANDARDS = [
-  { id:'ms01', category:'Locks', icon:'🔒', title:'Locks on all external doors and windows',
-    desc:'All external entry doors must have a functioning deadlock or security screen door. Windows within 2m of ground level must have a functioning lock or latch.',
-    legal:'Residential Tenancies Regulations 2021, r.6', freq:'Each tenancy' },
-  { id:'ms02', category:'Locks', icon:'🔒', title:'Locks able to be operated without key from inside',
-    desc:'Internal locking mechanisms on external doors and windows must be operable from inside without a key for emergency exit.',
-    legal:'Residential Tenancies Regulations 2021, r.6', freq:'Each tenancy' },
-  { id:'ms03', category:'Lighting', icon:'💡', title:'Adequate lighting in all rooms',
-    desc:'Each room (other than storage rooms and garages) must have a working light fitting connected to electricity. External areas used for entry/exit must be lit.',
-    legal:'Residential Tenancies Regulations 2021, r.7', freq:'Each tenancy' },
-  { id:'ms04', category:'Ventilation', icon:'💨', title:'Adequate ventilation in all rooms',
-    desc:'Each room must have a window, door, or other device that opens to allow ventilation. Bathrooms and ensuites must have mechanical ventilation or a window to outside.',
-    legal:'Residential Tenancies Regulations 2021, r.8', freq:'Each tenancy' },
-  { id:'ms05', category:'Hot Water', icon:'🚿', title:'Working hot water system',
-    desc:'The property must have a working water heater supplying hot water to all bathrooms and kitchen. Minimum 45°C at outlets.',
-    legal:'Residential Tenancies Regulations 2021, r.9', freq:'Each tenancy' },
-  { id:'ms06', category:'Heating', icon:'🌡️', title:'Fixed heater in main living area',
-    desc:'At least one fixed heater (not a portable heater) must be installed and working in the main living area. Gas, electric or ducted systems are acceptable.',
-    legal:'Residential Tenancies Regulations 2021, r.10', freq:'Each tenancy' },
-  { id:'ms07', category:'Mould & Damp', icon:'🌿', title:'No mould or damp caused by building structure',
-    desc:'The property must be free from mould and dampness caused by a fault in the building — including rising damp, roof leaks and plumbing leaks.',
-    legal:'Residential Tenancies Regulations 2021, r.11', freq:'Ongoing' },
-  { id:'ms08', category:'Kitchen', icon:'🍳', title:'Kitchen with sink, cooktop and food storage',
-    desc:'The kitchen must include a fixed cook top with at least two burners/elements, a working sink with hot and cold water, and adequate food storage space.',
-    legal:'Residential Tenancies Regulations 2021, r.12', freq:'Each tenancy' },
-  { id:'ms09', category:'Bathroom', icon:'🛁', title:'Bathroom with shower or bath, toilet, and handbasin',
-    desc:'The property must have a bathroom with a shower or bath connected to hot and cold water. A toilet and washbasin (with hot and cold water) must be accessible.',
-    legal:'Residential Tenancies Regulations 2021, r.13', freq:'Each tenancy' },
-  { id:'ms10', category:'Laundry', icon:'👕', title:'Laundry facilities or space',
-    desc:'The property must have a laundry tub connected to hot and cold water, or space to install a washing machine with the required connections.',
-    legal:'Residential Tenancies Regulations 2021, r.14', freq:'Each tenancy' },
-  { id:'ms11', category:'Waste', icon:'🗑️', title:'Rubbish and waste disposal facilities',
-    desc:'The property must have suitable facilities for the collection and disposal of rubbish and waste, including connections to services where available.',
-    legal:'Residential Tenancies Regulations 2021, r.15', freq:'Each tenancy' },
-  { id:'ms12', category:'Pest Control', icon:'🐛', title:'Free from pests and vermin at start of tenancy',
-    desc:'The property must be free from rats, mice, cockroaches, fleas and other vermin at the start of each tenancy.',
-    legal:'Residential Tenancies Regulations 2021, r.16', freq:'Start of tenancy' },
-  { id:'ms13', category:'Structural Safety', icon:'🏠', title:'Structurally sound with weatherproof roof and walls',
-    desc:'The property must be structurally sound, with a roof and external walls that keep out wind, rain and cold. Floors must be safe to walk on.',
-    legal:'Residential Tenancies Regulations 2021, r.17', freq:'Ongoing' },
-  { id:'ms14', category:'Privacy', icon:'🪟', title:'Window coverings for privacy in bedrooms',
-    desc:'Each bedroom must have window coverings (blinds, curtains or equivalent) that provide privacy for occupants.',
-    legal:'Residential Tenancies Regulations 2021, r.18', freq:'Each tenancy' },
+// ── Victorian Rental Property Disclosure Statement ───────────────────────────
+const DS_ITEMS = [
+  { id:'ds01', section:'Title & Ownership',
+    question:'Is the landlord the registered owner of the property, or do they have authority to lease it?',
+    note:'Include any mortgagee, co-owner or body corporate authority if applicable.' },
+  { id:'ds02', section:'Title & Ownership',
+    question:'Is there a current mortgage or charge over the property that may affect the tenancy?',
+    note:'Disclose if a mortgagee could take possession and end the tenancy.' },
+  { id:'ds03', section:'Planning & Use',
+    question:'Is the property subject to any planning permit, heritage overlay, or planning restriction that affects its use as a residence?',
+    note:'Include overlays, covenants or restrictions registered on title.' },
+  { id:'ds04', section:'Planning & Use',
+    question:'Has a planning permit been issued for development on or near the property that may affect the tenant?',
+    note:'e.g. major construction, subdivision, demolition orders.' },
+  { id:'ds05', section:'Building & Safety',
+    question:'Is the landlord aware of any building works, orders, or notices affecting the property?',
+    note:'Include building orders, improvement notices or emergency orders from Council or VCAT.' },
+  { id:'ds06', section:'Building & Safety',
+    question:'Does the property have any known structural defects, subsidence, or material defects?',
+    note:'Must be disclosed even if remediation is planned.' },
+  { id:'ds07', section:'Building & Safety',
+    question:'Has the property been subject to a bushfire, flood, or other natural disaster in the past 3 years that may affect the property?',
+    note:'Disclose any damage that has not been fully remediated.' },
+  { id:'ds08', section:'Utilities & Services',
+    question:'Is the property connected to reticulated (mains) water, sewerage, gas and electricity?',
+    note:'If not connected to mains, describe the alternative supply (e.g. tank water, septic).' },
+  { id:'ds09', section:'Utilities & Services',
+    question:'Are there any shared or common utilities, meters, or costs the tenant will be responsible for?',
+    note:'e.g. shared water meter in a block, embedded network electricity.' },
+  { id:'ds10', section:'Bodies Corporate & Owners Corporations',
+    question:'Is the property part of a body corporate or owners corporation scheme?',
+    note:'If yes, provide the owners corporation rules and any relevant fees or restrictions.' },
+  { id:'ds11', section:'Bodies Corporate & Owners Corporations',
+    question:'Are there any current or anticipated special levies or major works planned by the owners corporation?',
+    note:'Disclose any known upcoming costs that may affect the property or tenant.' },
+  { id:'ds12', section:'Rental History & Dispute',
+    question:'Has the property been the subject of a VCAT application or tribunal order in the past 3 years relating to the condition or use of the property?',
+    note:'Includes compliance orders, rent reduction orders or possession orders.' },
+  { id:'ds13', section:'Minimum Standards',
+    question:'Does the property meet all Victorian rental minimum standards as required under the Residential Tenancies Regulations 2021?',
+    note:'Including locks, lighting, heating, hot water, ventilation, kitchen, bathroom, laundry and structural soundness.' },
+  { id:'ds14', section:'Minimum Standards',
+    question:'Are all smoke alarms installed, tested and compliant with the Building Regulations 2018?',
+    note:'Interconnected photoelectric smoke alarms required in all bedrooms, hallways and living areas.' },
+  { id:'ds15', section:'Environmental & Safety',
+    question:'Is the landlord aware of any asbestos, lead paint, or other hazardous materials at the property?',
+    note:'Provide an asbestos register if applicable. Pre-1990 properties may contain asbestos.' },
+  { id:'ds16', section:'Environmental & Safety',
+    question:'Is the property in a designated flood zone, bushfire management overlay, or high-risk area?',
+    note:'Check the relevant planning scheme and VicSES flood mapping.' },
+  { id:'ds17', section:'Property Condition',
+    question:'Are all fixtures, fittings and appliances included in the lease in good working order?',
+    note:'List any known faults or items requiring repair prior to or at commencement of tenancy.' },
+  { id:'ds18', section:'Property Condition',
+    question:'Has the property been used for any purpose (e.g. drug cultivation, manufacturing) that could affect health or safety?',
+    note:'Disclosure required even if remediation has occurred.' },
 ];
 
 function initMinStandards() {
-  // Pre-fill address from current property
-  const addrEl = document.getElementById('msAddress');
+  const addrEl = document.getElementById('dsAddress');
   if (addrEl && !addrEl.value && currentProperty) addrEl.value = currentProperty;
-
-  // Set today's date if blank
-  const dateEl = document.getElementById('msDate');
+  const ownerEl = document.getElementById('dsOwnerName');
+  if (ownerEl && !ownerEl.value && currentOwner) ownerEl.value = currentOwner;
+  const dateEl = document.getElementById('dsDate');
   if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().split('T')[0];
-
   renderMinStandards();
 }
+
+function renderMinStandards() {
+  const el = document.getElementById('dsItemsList');
+  if (!el) return;
+  const saved = JSON.parse(localStorage.getItem('owner_ds_checklist') || '{}');
+
+  // Group by section
+  const sections = {};
+  DS_ITEMS.forEach(item => {
+    if (!sections[item.section]) sections[item.section] = [];
+    sections[item.section].push(item);
+  });
+
+  const sectionIcons = {
+    'Title & Ownership': '📜',
+    'Planning & Use': '🏗️',
+    'Building & Safety': '🏠',
+    'Utilities & Services': '⚡',
+    'Bodies Corporate & Owners Corporations': '🏢',
+    'Rental History & Dispute': '⚖️',
+    'Minimum Standards': '✅',
+    'Environmental & Safety': '🌿',
+    'Property Condition': '🔧',
+  };
+
+  el.innerHTML = Object.entries(sections).map(([section, items]) => `
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:14px;">
+      <div style="background:linear-gradient(135deg,#0A2F5C,#0d3870);padding:12px 18px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1rem;">${sectionIcons[section]||'📋'}</span>
+        <div style="font-size:0.82rem;font-weight:800;color:#fff;">${section}</div>
+      </div>
+      ${items.map((item, i) => {
+        const val = saved[item.id] || '';
+        const noteVal = (saved[item.id+'_note'] || '').replace(/"/g, '&quot;');
+        const isLast = i === items.length - 1;
+        return `<div style="padding:16px 18px;${isLast?'':'border-bottom:1px solid #f1f5f9;'}background:${val==='yes'?'#f0fdf4':val==='no'?'#fff5f5':'#fff'}">
+          <div style="display:flex;align-items:flex-start;gap:14px;">
+            <div style="font-size:0.7rem;font-weight:800;color:#94a3b8;flex-shrink:0;margin-top:2px;">${item.id.replace('ds','').replace(/^0/,'')}</div>
+            <div style="flex:1;">
+              <div style="font-size:0.83rem;font-weight:700;color:#0A2F5C;margin-bottom:4px;line-height:1.5;">${item.question}</div>
+              <div style="font-size:0.72rem;color:#94a3b8;margin-bottom:10px;line-height:1.5;font-style:italic;">📌 ${item.note}</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 14px;border-radius:7px;border:2px solid ${val==='yes'?'#16a34a':'#e2e8f0'};background:${val==='yes'?'#dcfce7':'#fff'};font-size:0.78rem;font-weight:700;color:${val==='yes'?'#16a34a':'#475569'};white-space:nowrap;"><input type="radio" name="${item.id}" value="yes" onchange="msTick('${item.id}','yes')" ${val==='yes'?'checked':''} style="accent-color:#16a34a;"> ✅ Yes</label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 14px;border-radius:7px;border:2px solid ${val==='no'?'#dc2626':'#e2e8f0'};background:${val==='no'?'#fee2e2':'#fff'};font-size:0.78rem;font-weight:700;color:${val==='no'?'#dc2626':'#475569'};white-space:nowrap;"><input type="radio" name="${item.id}" value="no" onchange="msTick('${item.id}','no')" ${val==='no'?'checked':''} style="accent-color:#dc2626;"> ❌ No</label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 14px;border-radius:7px;border:2px solid ${val==='na'?'#94a3b8':'#e2e8f0'};background:${val==='na'?'#f1f5f9':'#fff'};font-size:0.78rem;font-weight:700;color:#475569;white-space:nowrap;"><input type="radio" name="${item.id}" value="na" onchange="msTick('${item.id}','na')" ${val==='na'?'checked':''} style="accent-color:#94a3b8;"> N/A</label>
+              </div>
+              <input type="text" placeholder="Additional details / explanation (if required)…" value="${noteVal}" onchange="msNote('${item.id}',this.value)" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:7px 11px;font-family:Montserrat,sans-serif;font-size:0.78rem;box-sizing:border-box;background:#fafafa;">
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+}
+
+function msTick(id, value) {
+  const saved = JSON.parse(localStorage.getItem('owner_ds_checklist') || '{}');
+  saved[id] = value;
+  localStorage.setItem('owner_ds_checklist', JSON.stringify(saved));
+  renderMinStandards();
+}
+
+function msNote(id, value) {
+  const saved = JSON.parse(localStorage.getItem('owner_ds_checklist') || '{}');
+  saved[id+'_note'] = value;
+  localStorage.setItem('owner_ds_checklist', JSON.stringify(saved));
+}
+
+function buildDisclosureHtml() {
+  const saved  = JSON.parse(localStorage.getItem('owner_ds_checklist') || '{}');
+  const addr   = document.getElementById('dsAddress')?.value || currentProperty || '—';
+  const owner  = document.getElementById('dsOwnerName')?.value || currentOwner || '—';
+  const agent  = document.getElementById('dsAgent')?.value || '—';
+  const tenant = document.getElementById('dsTenantName')?.value || '—';
+  const rent   = document.getElementById('dsRent')?.value || '—';
+  const date   = document.getElementById('dsDate')?.value || '';
+  const sigOwner  = document.getElementById('dsSigOwner')?.value || '';
+  const sigTenant = document.getElementById('dsSigTenant')?.value || '';
+  const dateStr = date ? new Date(date).toLocaleDateString('en-AU',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+  const today   = new Date().toLocaleDateString('en-AU',{day:'2-digit',month:'long',year:'numeric'});
+
+  const answered = DS_ITEMS.filter(s => saved[s.id]).length;
+  const noCount  = DS_ITEMS.filter(s => saved[s.id] === 'no').length;
+
+  const rows = DS_ITEMS.map((item, i) => {
+    const val  = saved[item.id] || '';
+    const note = saved[item.id+'_note'] || '';
+    const pill = val==='yes' ? '<span style="background:#dcfce7;color:#16a34a;border-radius:5px;padding:2px 10px;font-size:11px;font-weight:700;">✅ Yes</span>'
+      : val==='no'  ? '<span style="background:#fee2e2;color:#dc2626;border-radius:5px;padding:2px 10px;font-size:11px;font-weight:700;">❌ No</span>'
+      : val==='na'  ? '<span style="background:#f1f5f9;color:#64748b;border-radius:5px;padding:2px 10px;font-size:11px;font-weight:700;">N/A</span>'
+      : '<span style="background:#fef9c3;color:#854d0e;border-radius:5px;padding:2px 10px;font-size:11px;font-weight:700;">Not answered</span>';
+    const bg = val==='no'?'#fff5f5':val==='yes'?'#f0fdf4':'#fff';
+    return `<tr style="background:${bg};border-bottom:1px solid #e2e8f0;">
+      <td style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;white-space:nowrap;">${i+1}. ${item.section}</td>
+      <td style="padding:9px 12px;font-size:12px;color:#1a1a2e;">${item.question}</td>
+      <td style="padding:9px 12px;text-align:center;">${pill}</td>
+      <td style="padding:9px 12px;font-size:11px;color:#475569;">${note||'—'}</td>
+    </tr>`;
+  }).join('');
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rental Property Disclosure Statement</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:40px;color:#1a1a2e;font-size:13px;}
+    .hdr{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:4px solid #0A2F5C;padding-bottom:16px;margin-bottom:20px;}
+    .logo{font-size:20px;font-weight:800;color:#0A2F5C;}.logo span{color:#5BB8F5;}
+    .title-block{text-align:right;}.title-block h1{font-size:16px;font-weight:800;color:#0A2F5C;margin:0 0 4px;}.title-block p{font-size:10px;color:#64748b;margin:0;}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;background:#f0f4f8;border-radius:10px;padding:14px 18px;margin-bottom:20px;}
+    .info-item .lbl{font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;margin-bottom:2px;}.info-item .val{font-size:13px;font-weight:700;color:#0A2F5C;}
+    .notice{background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:11px;color:#92400e;line-height:1.7;}
+    table{width:100%;border-collapse:collapse;margin-bottom:20px;}
+    th{background:#0A2F5C;color:#fff;padding:10px 12px;font-size:11px;text-align:left;}
+    .sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;}
+    .sig-box{border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px;}.sig-lbl{font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;margin-bottom:6px;}
+    .sig-name{font-size:16px;font-style:italic;color:#0A2F5C;border-bottom:2px solid #0A2F5C;padding-bottom:4px;min-height:28px;}
+    .sig-date{font-size:10px;color:#94a3b8;margin-top:4px;}
+    .footer{margin-top:24px;border-top:2px solid #0A2F5C;padding-top:12px;font-size:10px;color:#888;line-height:1.6;}
+  </style></head><body>
+  <div class="hdr">
+    <div><div class="logo">Vic<span>Rental</span> PRO</div></div>
+    <div class="title-block"><h1>Rental Property Disclosure Statement</h1><p>Residential Tenancies Act 1997 (Victoria) · Section 30A</p></div>
+  </div>
+  <div class="info-grid">
+    <div class="info-item" style="grid-column:1/-1;"><div class="lbl">Rental Property Address</div><div class="val">${addr}</div></div>
+    <div class="info-item"><div class="lbl">Landlord / Owner</div><div class="val">${owner}</div></div>
+    <div class="info-item"><div class="lbl">Property Manager / Agent</div><div class="val">${agent}</div></div>
+    <div class="info-item"><div class="lbl">Prospective Tenant(s)</div><div class="val">${tenant}</div></div>
+    <div class="info-item"><div class="lbl">Weekly Rent</div><div class="val">${rent !== '—' ? '$' + Number(rent).toLocaleString('en-AU') + ' /week' : '—'}</div></div>
+    <div class="info-item"><div class="lbl">Date of Disclosure</div><div class="val">${dateStr}</div></div>
+    <div class="info-item"><div class="lbl">Items Answered</div><div class="val">${answered} of ${DS_ITEMS.length} · ${noCount} requiring attention</div></div>
+  </div>
+  <div class="notice">
+    ⚠️ <strong>Important:</strong> Under the <em>Residential Tenancies Act 1997</em> (Vic), a landlord or their agent must not make a false or misleading statement or representation to a prospective tenant. Failure to disclose a material fact may give the tenant grounds to terminate the agreement or seek compensation.
+  </div>
+  <table>
+    <thead><tr>
+      <th style="width:18%;">Section</th>
+      <th style="width:44%;">Disclosure Item</th>
+      <th style="width:12%;text-align:center;">Response</th>
+      <th style="width:26%;">Details / Explanation</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div class="sig-grid">
+    <div class="sig-box"><div class="sig-lbl">Landlord / Agent Signature</div><div class="sig-name">${sigOwner}</div><div class="sig-date">Signed: ${dateStr}</div></div>
+    <div class="sig-box"><div class="sig-lbl">Tenant Acknowledgement</div><div class="sig-name">${sigTenant}</div><div class="sig-date">Acknowledged: ${dateStr}</div></div>
+  </div>
+  <div class="footer">
+    Generated: ${today} via VicRental Pro Owner Portal · 
+    This disclosure statement is provided as a guide. It does not constitute legal advice. 
+    For official guidance visit Consumer Affairs Victoria at consumer.vic.gov.au. 
+    The Residential Tenancies Act 1997 (Vic) and Residential Tenancies Regulations 2021 govern all tenancy agreements in Victoria.
+  </div>
+  </body></html>`;
+}
+
+function downloadDisclosure() {
+  if (!document.getElementById('dsConfirm')?.checked) {
+    alert('Please tick the declaration confirmation before downloading.');
+    return;
+  }
+  const html = buildDisclosureHtml();
+  const addr = (document.getElementById('dsAddress')?.value || 'property').replace(/[^a-z0-9]/gi,'_').substring(0,30);
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'DisclosureStatement_' + addr + '.html';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function saveDisclosureToVault() {
+  if (!document.getElementById('dsConfirm')?.checked) {
+    alert('Please tick the declaration confirmation before saving.');
+    return;
+  }
+  const html  = buildDisclosureHtml();
+  const addr  = document.getElementById('dsAddress')?.value || currentProperty || '—';
+  const date  = document.getElementById('dsDate')?.value || new Date().toISOString().split('T')[0];
+  const saved = JSON.parse(localStorage.getItem('owner_ds_checklist') || '{}');
+  const noCount = DS_ITEMS.filter(s => saved[s.id] === 'no').length;
+  const docId = 'DS-' + Date.now();
+  const vault = JSON.parse(localStorage.getItem('vicrental_vault') || '[]');
+  vault.unshift({
+    id: docId,
+    name: 'Disclosure Statement — ' + addr.split(',')[0].trim() + (noCount ? ' ⚠️ ' + noCount + ' items require attention' : ' ✅'),
+    type: 'disclosure_statement',
+    category: 'Disclosure Statement',
+    fileName: 'DisclosureStatement_' + addr.replace(/[^a-z0-9]/gi,'_').substring(0,25) + '.html',
+    property: addr,
+    date: date,
+    uploadedAt: new Date().toISOString(),
+    ownerVisible: true,
+    fileType: 'html',
+    isHtml: true,
+    dataUrl: 'data:text/html;charset=utf-8,' + encodeURIComponent(html),
+  });
+  localStorage.setItem('vicrental_vault', JSON.stringify(vault));
+  const msg = document.getElementById('dsSaveMsg');
+  if (msg) { msg.textContent = '✅ Saved to Document Vault — view under the 🗄️ Documents tab.'; msg.style.display = ''; setTimeout(() => msg.style.display = 'none', 4000); }
+  renderOwnerVault();
+}
+
+// Aliases for backward compat
+function downloadMinStandards() { downloadDisclosure(); }
+function saveMinStandardsToVault() { saveDisclosureToVault(); }
 
 function renderMinStandards() {
   const el = document.getElementById('msStandardsList');
