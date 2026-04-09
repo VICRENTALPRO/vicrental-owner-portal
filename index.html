@@ -1489,7 +1489,7 @@ function renderPropertyHome() {
       ['Last Rent Review', fmt(p.lastRentReview)],
       ['Lease Type', p.leaseType || '—'],
     ];
-    return `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;" onclick="enterPropertyByIndex(${idx})">
+    return `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
       <div style="background:linear-gradient(135deg,#0A2F5C,#0d3870);padding:16px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
         <div><div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.55);margin-bottom:3px;">Property Address</div>
         <div style="font-weight:800;font-size:0.9rem;color:#fff;line-height:1.35;">${addr}</div></div>
@@ -1498,8 +1498,8 @@ function renderPropertyHome() {
       <div style="padding:14px 18px;">
         ${rows.map(([l,v]) => `<div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid #f1f5f9;"><span style="font-size:0.75rem;color:#64748b;">${l}</span><span style="font-size:0.82rem;font-weight:700;color:#0A2F5C;text-align:right;max-width:55%;">${v}</span></div>`).join('')}
       </div>
-      <div style="padding:10px 18px;background:#f8fafc;border-top:1px solid #e2e8f0;text-align:right;">
-        <span style="font-size:0.8rem;font-weight:700;color:#0A2F5C;">View Property →</span>
+      <div style="padding:12px 18px;background:#f8fafc;border-top:1px solid #e2e8f0;">
+        <button onclick="enterPropertyByIndex(${idx})" style="width:100%;padding:10px;background:#0A2F5C;color:#fff;border:none;border-radius:9px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;">View Property →</button>
       </div>
     </div>`;
   }).join('');
