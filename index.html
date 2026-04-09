@@ -1277,15 +1277,10 @@ function doLogin() {
 
   // Helper: check local owner accounts (set by PM portal)
   function tryLocalLogin() {
-    // Check vrprop_ key — PM portal stores owner data there
+    // Check vrprop_ key — PM portal pushes property data including portalPassword here
     const ownerKey = 'vrprop_' + name.toLowerCase().replace(/\s+/g,'_');
     const pushed = JSON.parse(localStorage.getItem(ownerKey) || '[]');
-
-    // Also check vicrental_owner_accounts (set when PM registers owner)
-    const accounts = JSON.parse(localStorage.getItem('vicrental_owner_accounts') || '[]');
-    const match = accounts.find(a =>
-      a.name?.toLowerCase() === name.toLowerCase() && a.password === password
-    );
+    const pushedMatch = pushed.find(p => p.portalPassword === password);
 
     // Also check legacy getOwners() list
     const legacyOwners = S.get(KEY_OWNERS, []);
@@ -1293,7 +1288,7 @@ function doLogin() {
       o.name?.toLowerCase() === name.toLowerCase() && o.password === password
     );
 
-    if (match || legacyMatch) {
+    if (pushedMatch || legacyMatch) {
       errEl.style.display = 'none';
       btn.textContent = 'Sign In';
       btn.disabled = false;
