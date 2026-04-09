@@ -1260,6 +1260,35 @@ function getOwners() {
 // ═══════════════════════════════════════════════
 // LOGIN / LOGOUT
 // ═══════════════════════════════════════════════
+// Auto-login from URL hash (set by PM portal when pushing property)
+// Format: #setup:name=John Smith&pw=password123
+(function checkUrlSetup() {
+  try {
+    const hash = window.location.hash;
+    if (!hash.startsWith('#setup:')) return;
+    const params = new URLSearchParams(hash.slice(7));
+    const name = params.get('name');
+    const pw   = params.get('pw');
+    if (!name || !pw) return;
+    // Store credentials in vrprop_ key so future logins work
+    const ownerKey = 'vrprop_' + name.toLowerCase().replace(/\s+/g,'_');
+    const existing = JSON.parse(localStorage.getItem(ownerKey) || '[]');
+    const idx = existing.findIndex(e => e.owner?.toLowerCase() === name.toLowerCase());
+    if (idx !== -1) { existing[idx].portalPassword = pw; }
+    else { existing.push({ owner: name, portalPassword: pw, pushedAt: new Date().toISOString() }); }
+    localStorage.setItem(ownerKey, JSON.stringify(existing));
+    // Clear hash from URL
+    window.history.replaceState(null, '', window.location.pathname);
+    // Pre-fill login form
+    setTimeout(() => {
+      const nameEl = document.getElementById('loginName');
+      const pwEl   = document.getElementById('loginPassword');
+      if (nameEl) nameEl.value = name;
+      if (pwEl)   pwEl.value   = pw;
+    }, 300);
+  } catch(e) {}
+})();
+
 function doLogin() {
   const name = document.getElementById('loginName').value.trim();
   const password = document.getElementById('loginPassword').value;
@@ -1277,12 +1306,12 @@ function doLogin() {
 
   // Helper: check local owner accounts (set by PM portal)
   function tryLocalLogin() {
-    // Check vrprop_ key — PM portal pushes property data including portalPassword here
+    // Check vrprop_ key — PM portal stores credentials here including portalPassword
     const ownerKey = 'vrprop_' + name.toLowerCase().replace(/\s+/g,'_');
     const pushed = JSON.parse(localStorage.getItem(ownerKey) || '[]');
     const pushedMatch = pushed.find(p => p.portalPassword === password);
 
-    // Also check legacy getOwners() list
+    // Also check legacy getOwners() list (Michael Chen demo etc)
     const legacyOwners = S.get(KEY_OWNERS, []);
     const legacyMatch = legacyOwners.find(o =>
       o.name?.toLowerCase() === name.toLowerCase() && o.password === password
