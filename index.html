@@ -1334,8 +1334,17 @@ function showPortal(ownerName) {
 function renderPropertyHome() {
   const grid = document.getElementById('propHomeGrid');
   if (!grid) return;
-  const allProps = S.get('vicrental_managed_props', []);
-  const myProps  = allProps.filter(p => p.owner?.toLowerCase() === currentOwner.toLowerCase() && !p.archived);
+
+  // Read from vrprop_ key set by PM portal push, OR fall back to vicrental_managed_props
+  const ownerKey = 'vrprop_' + currentOwner.toLowerCase().replace(/\s+/g,'_');
+  let myProps = JSON.parse(localStorage.getItem(ownerKey) || '[]');
+
+  // Fallback: also check vicrental_managed_props directly (same device)
+  if (!myProps.length) {
+    const allProps = S.get('vicrental_managed_props', []);
+    myProps = allProps.filter(p => p.owner?.toLowerCase() === currentOwner.toLowerCase() && !p.archived);
+  }
+
   const fmt = iso => { try { return iso ? new Date(iso).toLocaleDateString('en-AU',{day:'2-digit',month:'short',year:'numeric'}) : '—'; } catch(e){ return '—'; } };
   const fmtMoney = v => v ? '$' + Number(v).toLocaleString('en-AU') + ' /month' : '—';
   const badge = p => {
@@ -1354,11 +1363,18 @@ function renderPropertyHome() {
   };
 
   if (!myProps.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;"><div style="font-size:2.5rem;margin-bottom:12px;">🏠</div><div style="font-size:1rem;font-weight:700;color:#0A2F5C;margin-bottom:6px;">No properties found</div><div style="font-size:0.85rem;color:#64748b;">Your property manager has not linked any properties to your account yet.</div></div>';
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;background:#fff;border-radius:16px;border:1px solid #e2e8f0;">
+      <div style="font-size:2.5rem;margin-bottom:12px;">🏠</div>
+      <div style="font-size:1rem;font-weight:700;color:#0A2F5C;margin-bottom:8px;">No properties linked yet</div>
+      <div style="font-size:0.83rem;color:#64748b;max-width:360px;margin:0 auto;line-height:1.7;">
+        Your property manager needs to click <strong>Push to Owner Portal</strong> on your property in the PM portal.<br>
+        Once pushed, your property summary will appear here.
+      </div>
+    </div>`;
     return;
   }
 
-  // Store props globally for tile click lookup
+  // Store for tile click lookup
   window._homeProps = myProps;
   grid.innerHTML = myProps.map((p, idx) => {
     const addr = cleanAddr(p.address || '');
