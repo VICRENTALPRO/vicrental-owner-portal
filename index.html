@@ -1633,61 +1633,85 @@ function setFilter(f) { setView('issues', f); }
 
 // ── Victorian Rental Property Disclosure Statement ───────────────────────────
 const DS_ITEMS = [
-  { id:'ds01', section:'Title & Ownership',
-    question:'Is the landlord the registered owner of the property, or do they have authority to lease it?',
-    note:'Include any mortgagee, co-owner or body corporate authority if applicable.' },
-  { id:'ds02', section:'Title & Ownership',
-    question:'Is there a current mortgage or charge over the property that may affect the tenancy?',
-    note:'Disclose if a mortgagee could take possession and end the tenancy.' },
-  { id:'ds03', section:'Planning & Use',
-    question:'Is the property subject to any planning permit, heritage overlay, or planning restriction that affects its use as a residence?',
-    note:'Include overlays, covenants or restrictions registered on title.' },
-  { id:'ds04', section:'Planning & Use',
-    question:'Has a planning permit been issued for development on or near the property that may affect the tenant?',
-    note:'e.g. major construction, subdivision, demolition orders.' },
-  { id:'ds05', section:'Building & Safety',
-    question:'Is the landlord aware of any building works, orders, or notices affecting the property?',
-    note:'Include building orders, improvement notices or emergency orders from Council or VCAT.' },
-  { id:'ds06', section:'Building & Safety',
-    question:'Does the property have any known structural defects, subsidence, or material defects?',
-    note:'Must be disclosed even if remediation is planned.' },
-  { id:'ds07', section:'Building & Safety',
-    question:'Has the property been subject to a bushfire, flood, or other natural disaster in the past 3 years that may affect the property?',
-    note:'Disclose any damage that has not been fully remediated.' },
-  { id:'ds08', section:'Utilities & Services',
-    question:'Is the property connected to reticulated (mains) water, sewerage, gas and electricity?',
-    note:'If not connected to mains, describe the alternative supply (e.g. tank water, septic).' },
-  { id:'ds09', section:'Utilities & Services',
-    question:'Are there any shared or common utilities, meters, or costs the tenant will be responsible for?',
-    note:'e.g. shared water meter in a block, embedded network electricity.' },
-  { id:'ds10', section:'Bodies Corporate & Owners Corporations',
-    question:'Is the property part of a body corporate or owners corporation scheme?',
-    note:'If yes, provide the owners corporation rules and any relevant fees or restrictions.' },
-  { id:'ds11', section:'Bodies Corporate & Owners Corporations',
-    question:'Are there any current or anticipated special levies or major works planned by the owners corporation?',
-    note:'Disclose any known upcoming costs that may affect the property or tenant.' },
-  { id:'ds12', section:'Rental History & Dispute',
-    question:'Has the property been the subject of a VCAT application or tribunal order in the past 3 years relating to the condition or use of the property?',
-    note:'Includes compliance orders, rent reduction orders or possession orders.' },
-  { id:'ds13', section:'Minimum Standards',
-    question:'Does the property meet all Victorian rental minimum standards as required under the Residential Tenancies Regulations 2021?',
-    note:'Including locks, lighting, heating, hot water, ventilation, kitchen, bathroom, laundry and structural soundness.' },
-  { id:'ds14', section:'Minimum Standards',
-    question:'Are all smoke alarms installed, tested and compliant with the Building Regulations 2018?',
-    note:'Interconnected photoelectric smoke alarms required in all bedrooms, hallways and living areas.' },
-  { id:'ds15', section:'Environmental & Safety',
-    question:'Is the landlord aware of any asbestos, lead paint, or other hazardous materials at the property?',
-    note:'Provide an asbestos register if applicable. Pre-1990 properties may contain asbestos.' },
-  { id:'ds16', section:'Environmental & Safety',
-    question:'Is the property in a designated flood zone, bushfire management overlay, or high-risk area?',
-    note:'Check the relevant planning scheme and VicSES flood mapping.' },
-  { id:'ds17', section:'Property Condition',
-    question:'Are all fixtures, fittings and appliances included in the lease in good working order?',
-    note:'List any known faults or items requiring repair prior to or at commencement of tenancy.' },
-  { id:'ds18', section:'Property Condition',
-    question:'Has the property been used for any purpose (e.g. drug cultivation, manufacturing) that could affect health or safety?',
-    note:'Disclosure required even if remediation has occurred.' },
+  { id:'ds01', section:'Sale of Property',
+    question:'Have you engaged an agent to sell the rented premises or prepared a contract of sale, or is there a proposal to sell the rented premises?',
+    options:['No','Yes'],
+    note:'Disclose any current or planned sale arrangements including agent engagement or contract preparation.' },
+  { id:'ds02', section:'Mortgage',
+    question:'Has a mortgagee commenced a proceeding to enforce a mortgage over the rented premises, or has a mortgagee taken action for possession of the rented premises?',
+    options:['No','Yes'],
+    note:'Includes any mortgagee proceedings that could result in the tenant being required to vacate.' },
+  { id:'ds03', section:'Ownership',
+    question:'Are you the owner/s of the rented premises?',
+    options:['Yes','No'],
+    note:'If not the registered owner, disclose the basis on which you have authority to lease the property.' },
+  { id:'ds04', section:'Electricity',
+    question:'Is the rented premises supplied with electricity from an embedded electricity network?',
+    options:['No','Yes'],
+    note:'An embedded network is a private electricity network within a building or complex. Tenants have different rights in embedded networks.' },
+  { id:'ds05', section:'Homicide',
+    question:'Is the rented premises or common property known by you to have been the location of a homicide in the last 5 years?',
+    options:['No','Yes'],
+    note:'Disclosure is required if you are aware of a homicide occurring at the property or common property within the past 5 years.' },
+  { id:'ds06', section:'Minimum Standards',
+    question:'Does the rented premises comply with the rental minimum standards?',
+    options:['Yes','No'],
+    note:'Rental minimum standards are specified in Schedule 4 of the Residential Tenancies Regulations 2021. All standards must be met before the tenancy begins.' },
+  { id:'ds07', section:'Mould & Damp',
+    question:'Have you received a repair notice, in the last 3 years, relating to mould or damp in the premises caused by or related to the building structure?',
+    options:['No','Yes'],
+    note:'Includes any repair notices issued by a tenant or tribunal relating to structural mould or damp issues.' },
+  { id:'ds08', section:'Gas Safety Check',
+    question:'What is the date of the most recent gas safety check?',
+    options:['Date entry','Not applicable'],
+    note:'A gas safety check must be conducted every 2 years by a licensed gasfitter. Enter the date of the most recent check.', isDate:true },
+  { id:'ds09', section:'Electrical Safety Check',
+    question:'What is the date of the most recent electrical safety check?',
+    options:['Date entry','Not applicable'],
+    note:'An electrical safety check must be conducted every 2 years by a licensed electrician. Enter the date of the most recent check.', isDate:true },
+  { id:'ds10', section:'Pool Barrier',
+    question:'What is the date of the most recent pool barrier compliance check?',
+    options:['Date entry','Not applicable'],
+    note:'Required if the property has a swimming pool or spa. A certificate of barrier compliance must be provided to the tenant.', isDate:true },
+  { id:'ds11', section:'Gas Safety — Outstanding Work',
+    question:'Are there any outstanding recommendations for work to be completed from a gas safety check?',
+    options:['No','Yes'],
+    note:'If yes, provide details of the outstanding work and the expected completion date.' },
+  { id:'ds12', section:'Electrical Safety — Outstanding Work',
+    question:'Are there any outstanding recommendations for work to be completed from an electrical safety check?',
+    options:['No','Yes'],
+    note:'If yes, provide details of the outstanding work and the expected completion date.' },
+  { id:'ds13', section:'Heritage',
+    question:'Is the rented premises a registered place?',
+    options:['No','Yes'],
+    note:'A registered place means a place included in the Victorian Heritage Register under the Heritage Act 2017. This may restrict alterations.' },
+  { id:'ds14', section:'Drug Contamination',
+    question:'Has the rented premises been contaminated because of prior use of the rented premises for the trafficking or cultivation of a drug of dependence in the last 5 years?',
+    options:['No','Yes'],
+    note:'Includes any known contamination from drug activity regardless of whether remediation has occurred.' },
+  { id:'ds15', section:'Asbestos',
+    question:'Does the rented premises have friable or non-friable asbestos based on an inspection by a suitably qualified person?',
+    options:["Don't know",'No','Yes'],
+    note:'If yes or unknown, an asbestos register must be provided. Pre-1990 properties commonly contain asbestos materials.' },
+  { id:'ds16', section:'Building or Planning Application',
+    question:'Is the rented premises to be affected by a building or planning application that has been lodged with the relevant authority?',
+    options:['No','Yes'],
+    note:'Affected is not limited to the rented premises — includes building or planning applications for neighbouring or nearby properties that may impact the tenant.' },
+  { id:'ds17', section:'Building Defects & Safety Notices',
+    question:'Is the rented premises or common property known by you to be the subject of any notice, order, declaration, report or recommendation issued by a relevant building surveyor, municipal building surveyor, public authority or government department relating to any building defects or safety concerns?',
+    options:['No','Yes'],
+    note:'Examples include: combustible cladding notices, water leak reports, structural issue orders from the Victorian Building Authority, local councils, or relevant building surveyors.' },
+  { id:'ds18', section:'Domestic Building Dispute',
+    question:'Is there a current domestic building work dispute under the Domestic Building Contracts Act 1995 (Vic) which applies to or affects the rented premises?',
+    options:['No','Yes'],
+    note:'Includes any active dispute with a builder relating to construction or renovation work at the property.' },
+  { id:'ds19', section:'Owners Corporation Dispute',
+    question:'Is there a current dispute under Part 10 of the Owners Corporations Act 2006 (Vic) which applies to or affects the rented premises?',
+    options:['No','Yes','Not applicable'],
+    note:'Part 10 of the Owners Corporations Act 2006 describes the handling of disputes. Select "Not applicable" only if there is no Owners Corporation.' },
 ];
+
+
 
 function initMinStandards() {
   const addrEl = document.getElementById('dsAddress');
@@ -1704,7 +1728,6 @@ function renderMinStandards() {
   if (!el) return;
   const saved = JSON.parse(localStorage.getItem('owner_ds_checklist') || '{}');
 
-  // Group by section
   const sections = {};
   DS_ITEMS.forEach(item => {
     if (!sections[item.section]) sections[item.section] = [];
@@ -1712,17 +1735,18 @@ function renderMinStandards() {
   });
 
   const sectionIcons = {
-    'Title & Ownership': '📜',
-    'Planning & Use': '🏗️',
-    'Building & Safety': '🏠',
-    'Utilities & Services': '⚡',
-    'Bodies Corporate & Owners Corporations': '🏢',
-    'Rental History & Dispute': '⚖️',
-    'Minimum Standards': '✅',
-    'Environmental & Safety': '🌿',
-    'Property Condition': '🔧',
+    'Sale of Property':'🏷️','Mortgage':'🏦','Ownership':'👤',
+    'Electricity':'⚡','Homicide':'⚠️','Minimum Standards':'✅',
+    'Mould & Damp':'💧','Gas Safety Check':'🔵','Electrical Safety Check':'⚡',
+    'Pool Barrier':'🏊','Gas Safety — Outstanding Work':'🔵',
+    'Electrical Safety — Outstanding Work':'⚡','Heritage':'🏛️',
+    'Drug Contamination':'🚫','Asbestos':'⚠️',
+    'Building or Planning Application':'🏗️',
+    'Building Defects & Safety Notices':'📋',
+    'Domestic Building Dispute':'⚖️','Owners Corporation Dispute':'🏢',
   };
 
+  let itemNum = 0;
   el.innerHTML = Object.entries(sections).map(([section, items]) => `
     <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:14px;">
       <div style="background:linear-gradient(135deg,#0A2F5C,#0d3870);padding:12px 18px;display:flex;align-items:center;gap:10px;">
@@ -1730,27 +1754,71 @@ function renderMinStandards() {
         <div style="font-size:0.82rem;font-weight:800;color:#fff;">${section}</div>
       </div>
       ${items.map((item, i) => {
+        itemNum++;
         const val = saved[item.id] || '';
-        const noteVal = (saved[item.id+'_note'] || '').replace(/"/g, '&quot;');
+        const noteVal = (saved[item.id+'_note'] || '').replace(/"/g,'&quot;');
         const isLast = i === items.length - 1;
-        return `<div style="padding:16px 18px;${isLast?'':'border-bottom:1px solid #f1f5f9;'}background:${val==='yes'?'#f0fdf4':val==='no'?'#fff5f5':'#fff'}">
-          <div style="display:flex;align-items:flex-start;gap:14px;">
-            <div style="font-size:0.7rem;font-weight:800;color:#94a3b8;flex-shrink:0;margin-top:2px;">${item.id.replace('ds','').replace(/^0/,'')}</div>
+        const rowBg = val==='Yes'||val==='No — compliant'?'#f0fdf4':val==='No'||val==='Yes — issues found'?'#fff5f5':'#fff';
+
+        let inputHtml = '';
+        if (item.isDate) {
+          // Date field + N/A option
+          const isNA = val === 'Not applicable';
+          const dateVal = (!isNA && val) ? val : '';
+          inputHtml = `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+            <input type="date" id="ds_date_${item.id}" value="${dateVal}" onchange="msTick('${item.id}',this.value)" ${isNA?'disabled':''} style="border:1px solid #e2e8f0;border-radius:7px;padding:7px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;${isNA?'opacity:0.4;':''}">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 14px;border-radius:7px;border:2px solid ${isNA?'#94a3b8':'#e2e8f0'};background:${isNA?'#f1f5f9':'#fff'};font-size:0.78rem;font-weight:700;color:#475569;white-space:nowrap;">
+              <input type="checkbox" onchange="dsToggleNA('${item.id}',this.checked)" ${isNA?'checked':''} style="accent-color:#94a3b8;"> Not applicable
+            </label>
+          </div>`;
+        } else {
+          // Radio buttons using item.options
+          const optColors = {
+            'Yes':['#16a34a','#dcfce7'],
+            'No':['#dc2626','#fee2e2'],
+            "Don't know":['#d97706','#fef9c3'],
+            'Not applicable':['#94a3b8','#f1f5f9'],
+          };
+          inputHtml = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+            ${item.options.map(opt => {
+              const [col, bg] = optColors[opt] || ['#475569','#f8fafc'];
+              const active = val === opt;
+              return `<label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 14px;border-radius:7px;border:2px solid ${active?col:'#e2e8f0'};background:${active?bg:'#fff'};font-size:0.78rem;font-weight:700;color:${active?col:'#475569'};white-space:nowrap;">
+                <input type="radio" name="${item.id}" value="${opt}" onchange="msTick('${item.id}','${opt}')" ${active?'checked':''} style="accent-color:${col};"> ${opt}
+              </label>`;
+            }).join('')}
+          </div>`;
+        }
+
+        return `<div style="padding:16px 18px;${isLast?'':'border-bottom:1px solid #f1f5f9;'}background:${rowBg}">
+          <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;">
+            <div style="font-size:0.68rem;font-weight:800;color:#94a3b8;flex-shrink:0;min-width:20px;margin-top:3px;">${itemNum}</div>
             <div style="flex:1;">
-              <div style="font-size:0.83rem;font-weight:700;color:#0A2F5C;margin-bottom:4px;line-height:1.5;">${item.question}</div>
-              <div style="font-size:0.72rem;color:#94a3b8;margin-bottom:10px;line-height:1.5;font-style:italic;">📌 ${item.note}</div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 14px;border-radius:7px;border:2px solid ${val==='yes'?'#16a34a':'#e2e8f0'};background:${val==='yes'?'#dcfce7':'#fff'};font-size:0.78rem;font-weight:700;color:${val==='yes'?'#16a34a':'#475569'};white-space:nowrap;"><input type="radio" name="${item.id}" value="yes" onchange="msTick('${item.id}','yes')" ${val==='yes'?'checked':''} style="accent-color:#16a34a;"> ✅ Yes</label>
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 14px;border-radius:7px;border:2px solid ${val==='no'?'#dc2626':'#e2e8f0'};background:${val==='no'?'#fee2e2':'#fff'};font-size:0.78rem;font-weight:700;color:${val==='no'?'#dc2626':'#475569'};white-space:nowrap;"><input type="radio" name="${item.id}" value="no" onchange="msTick('${item.id}','no')" ${val==='no'?'checked':''} style="accent-color:#dc2626;"> ❌ No</label>
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 14px;border-radius:7px;border:2px solid ${val==='na'?'#94a3b8':'#e2e8f0'};background:${val==='na'?'#f1f5f9':'#fff'};font-size:0.78rem;font-weight:700;color:#475569;white-space:nowrap;"><input type="radio" name="${item.id}" value="na" onchange="msTick('${item.id}','na')" ${val==='na'?'checked':''} style="accent-color:#94a3b8;"> N/A</label>
-              </div>
-              <input type="text" placeholder="Additional details / explanation (if required)…" value="${noteVal}" onchange="msNote('${item.id}',this.value)" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:7px 11px;font-family:Montserrat,sans-serif;font-size:0.78rem;box-sizing:border-box;background:#fafafa;">
+              <div style="font-size:0.83rem;font-weight:700;color:#0A2F5C;line-height:1.55;margin-bottom:6px;">${item.question}</div>
+              <div style="font-size:0.71rem;color:#94a3b8;line-height:1.5;font-style:italic;margin-bottom:10px;">📌 ${item.note}</div>
+              ${inputHtml}
+              <input type="text" placeholder="Additional details / explanation…" value="${noteVal}" onchange="msNote('${item.id}',this.value)" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:7px 11px;font-family:Montserrat,sans-serif;font-size:0.78rem;box-sizing:border-box;background:#fafafa;">
             </div>
           </div>
         </div>`;
       }).join('')}
     </div>
   `).join('');
+}
+
+function dsToggleNA(id, isNA) {
+  const saved = JSON.parse(localStorage.getItem('owner_ds_checklist') || '{}');
+  if (isNA) {
+    saved[id] = 'Not applicable';
+    const dateEl = document.getElementById('ds_date_'+id);
+    if (dateEl) { dateEl.disabled = true; dateEl.style.opacity = '0.4'; }
+  } else {
+    saved[id] = '';
+    const dateEl = document.getElementById('ds_date_'+id);
+    if (dateEl) { dateEl.disabled = false; dateEl.style.opacity = '1'; }
+  }
+  localStorage.setItem('owner_ds_checklist', JSON.stringify(saved));
+  renderMinStandards();
 }
 
 function msTick(id, value) {
@@ -1785,11 +1853,16 @@ function buildDisclosureHtml() {
   const rows = DS_ITEMS.map((item, i) => {
     const val  = saved[item.id] || '';
     const note = saved[item.id+'_note'] || '';
-    const pill = val==='yes' ? '<span style="background:#dcfce7;color:#16a34a;border-radius:5px;padding:2px 10px;font-size:11px;font-weight:700;">✅ Yes</span>'
-      : val==='no'  ? '<span style="background:#fee2e2;color:#dc2626;border-radius:5px;padding:2px 10px;font-size:11px;font-weight:700;">❌ No</span>'
-      : val==='na'  ? '<span style="background:#f1f5f9;color:#64748b;border-radius:5px;padding:2px 10px;font-size:11px;font-weight:700;">N/A</span>'
-      : '<span style="background:#fef9c3;color:#854d0e;border-radius:5px;padding:2px 10px;font-size:11px;font-weight:700;">Not answered</span>';
-    const bg = val==='no'?'#fff5f5':val==='yes'?'#f0fdf4':'#fff';
+    let displayVal = val || 'Not answered';
+    if (item.isDate && val && val !== 'Not applicable') {
+      try { displayVal = new Date(val).toLocaleDateString('en-AU',{day:'2-digit',month:'long',year:'numeric'}); } catch(e){}
+    }
+    const isNeg = val==='No'||val==='Yes — issues found';
+    const isPos = val==='Yes'||val==='No — compliant'||val==='Not applicable';
+    const pillBg  = isPos?'#dcfce7':isNeg?'#fee2e2':val==="Don't know"?'#fef9c3':'#f1f5f9';
+    const pillCol = isPos?'#16a34a':isNeg?'#dc2626':val==="Don't know"?'#854d0e':'#64748b';
+    const pill = `<span style="background:${pillBg};color:${pillCol};border-radius:5px;padding:2px 10px;font-size:11px;font-weight:700;">${displayVal}</span>`;
+    const bg = isNeg?'#fff5f5':isPos&&val!=='Not applicable'?'#f0fdf4':'#fff';
     return `<tr style="background:${bg};border-bottom:1px solid #e2e8f0;">
       <td style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;white-space:nowrap;">${i+1}. ${item.section}</td>
       <td style="padding:9px 12px;font-size:12px;color:#1a1a2e;">${item.question}</td>
@@ -1797,6 +1870,8 @@ function buildDisclosureHtml() {
       <td style="padding:9px 12px;font-size:11px;color:#475569;">${note||'—'}</td>
     </tr>`;
   }).join('');
+
+  return
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rental Property Disclosure Statement</title>
   <style>
