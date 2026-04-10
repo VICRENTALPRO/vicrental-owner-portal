@@ -1724,103 +1724,70 @@ function initMinStandards() {
 }
 
 function renderMinStandards() {
-  const el = document.getElementById('dsItemsList');
+  var el = document.getElementById('dsItemsList');
   if (!el) return;
-  const saved = JSON.parse(localStorage.getItem('owner_ds_checklist') || '{}');
-
-  const sections = {};
-  DS_ITEMS.forEach(item => {
-    if (!sections[item.section]) sections[item.section] = [];
-    sections[item.section].push(item);
+  var saved = JSON.parse(localStorage.getItem('owner_ds_checklist') || '{}');
+  var sectionIcons = {'Sale of Property':'🏷️','Mortgage':'🏦','Ownership':'👤','Electricity':'⚡','Homicide':'⚠️','Minimum Standards':'✅','Mould & Damp':'💧','Gas Safety Check':'🔵','Electrical Safety Check':'⚡','Pool Barrier':'🏊','Gas Safety — Outstanding Work':'🔵','Electrical Safety — Outstanding Work':'⚡','Heritage':'🏛️','Drug Contamination':'🚫','Asbestos':'⚠️','Building or Planning Application':'🏗️','Building Defects & Safety Notices':'📋','Domestic Building Dispute':'⚖️','Owners Corporation Dispute':'🏢'};
+  var optColors = {'Yes':['#16a34a','#dcfce7'],'No':['#dc2626','#fee2e2'],"Don't know":['#d97706','#fef9c3'],'Not applicable':['#94a3b8','#f1f5f9']};
+  var sections = {};
+  DS_ITEMS.forEach(function(item){if(!sections[item.section])sections[item.section]=[];sections[item.section].push(item);});
+  var html = '';
+  var itemNum = 0;
+  Object.keys(sections).forEach(function(section){
+    var items = sections[section];
+    html += '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:14px;">';
+    html += '<div style="background:linear-gradient(135deg,#0A2F5C,#0d3870);padding:12px 18px;display:flex;align-items:center;gap:10px;"><span style="font-size:1rem;">'+(sectionIcons[section]||'📋')+'</span><div style="font-size:0.82rem;font-weight:800;color:#fff;">'+section+'</div></div>';
+    items.forEach(function(item,i){
+      itemNum++;
+      var val = saved[item.id]||'';
+      var note = (saved[item.id+'_note']||'').replace(/"/g,'&quot;');
+      var rowBg = val==='Yes'?'#f0fdf4':val==='No'?'#fff5f5':'#fff';
+      var border = i<items.length-1?'border-bottom:1px solid #f1f5f9;':'';
+      html += '<div style="padding:16px 18px;'+border+'background:'+rowBg+'" id="ds_row_'+item.id+'">';
+      html += '<div style="display:flex;gap:10px;align-items:flex-start;">';
+      html += '<div style="font-size:0.68rem;font-weight:800;color:#94a3b8;flex-shrink:0;min-width:20px;margin-top:3px;">'+itemNum+'</div>';
+      html += '<div style="flex:1;">';
+      html += '<div style="font-size:0.83rem;font-weight:700;color:#0A2F5C;line-height:1.55;margin-bottom:6px;">'+item.question+'</div>';
+      html += '<div style="font-size:0.71rem;color:#94a3b8;line-height:1.5;font-style:italic;margin-bottom:10px;">📌 '+item.note+'</div>';
+      if(item.isDate){
+        var isNA = val==='Not applicable';
+        var dv = (!isNA&&val)?val:'';
+        html += '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">';
+        html += '<input type="date" id="ds_date_'+item.id+'" value="'+dv+'" data-id="'+item.id+'" '+(isNA?'disabled style="border:1px solid #e2e8f0;border-radius:7px;padding:7px 11px;font-size:0.82rem;opacity:0.4;"':'style="border:1px solid #e2e8f0;border-radius:7px;padding:7px 11px;font-size:0.82rem;"')+'>';
+        html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 14px;border-radius:7px;border:2px solid '+(isNA?'#94a3b8':'#e2e8f0')+';background:'+(isNA?'#f1f5f9':'#fff')+';font-size:0.78rem;font-weight:700;color:#475569;white-space:nowrap;">';
+        html += '<input type="checkbox" data-id="'+item.id+'" '+(isNA?'checked':'')+' style="accent-color:#94a3b8;"> Not applicable</label>';
+        html += '</div>';
+      } else {
+        html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">';
+        item.options.forEach(function(opt){
+          var colors = optColors[opt]||['#475569','#f8fafc'];
+          var active = val===opt;
+          html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 14px;border-radius:7px;border:2px solid '+(active?colors[0]:'#e2e8f0')+';background:'+(active?colors[1]:'#fff')+';font-size:0.78rem;font-weight:700;color:'+(active?colors[0]:'#475569')+';white-space:nowrap;">';
+          html += '<input type="radio" name="'+item.id+'" value="'+opt+'" data-id="'+item.id+'" '+(active?'checked':'')+' style="accent-color:'+colors[0]+';"> '+opt+'</label>';
+        });
+        html += '</div>';
+      }
+      html += '<input type="text" placeholder="Additional details…" value="'+note+'" data-id="'+item.id+'" class="ds-note-input" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:7px 11px;font-family:Montserrat,sans-serif;font-size:0.78rem;box-sizing:border-box;background:#fafafa;">';
+      html += '</div></div></div>';
+    });
+    html += '</div>';
   });
+  el.innerHTML = html;
 
-  const sectionIcons = {
-    'Sale of Property':'🏷️','Mortgage':'🏦','Ownership':'👤',
-    'Electricity':'⚡','Homicide':'⚠️','Minimum Standards':'✅',
-    'Mould & Damp':'💧','Gas Safety Check':'🔵','Electrical Safety Check':'⚡',
-    'Pool Barrier':'🏊','Gas Safety — Outstanding Work':'🔵',
-    'Electrical Safety — Outstanding Work':'⚡','Heritage':'🏛️',
-    'Drug Contamination':'🚫','Asbestos':'⚠️',
-    'Building or Planning Application':'🏗️',
-    'Building Defects & Safety Notices':'📋',
-    'Domestic Building Dispute':'⚖️','Owners Corporation Dispute':'🏢',
-  };
-
-  let itemNum = 0;
-  el.innerHTML = Object.entries(sections).map(([section, items]) => `
-    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:14px;">
-      <div style="background:linear-gradient(135deg,#0A2F5C,#0d3870);padding:12px 18px;display:flex;align-items:center;gap:10px;">
-        <span style="font-size:1rem;">${sectionIcons[section]||'📋'}</span>
-        <div style="font-size:0.82rem;font-weight:800;color:#fff;">${section}</div>
-      </div>
-      ${items.map((item, i) => {
-        itemNum++;
-        const val = saved[item.id] || '';
-        const noteVal = (saved[item.id+'_note'] || '').replace(/"/g,'&quot;');
-        const isLast = i === items.length - 1;
-        const rowBg = val==='Yes'||val==='No — compliant'?'#f0fdf4':val==='No'||val==='Yes — issues found'?'#fff5f5':'#fff';
-
-        let inputHtml = '';
-        if (item.isDate) {
-          // Date field + N/A option
-          const isNA = val === 'Not applicable';
-          const dateVal = (!isNA && val) ? val : '';
-          inputHtml = `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
-            <input type="date" id="ds_date_${item.id}" value="${dateVal}" onchange="msTick('${item.id}',this.value)" ${isNA?'disabled':''} style="border:1px solid #e2e8f0;border-radius:7px;padding:7px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;${isNA?'opacity:0.4;':''}">
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 14px;border-radius:7px;border:2px solid ${isNA?'#94a3b8':'#e2e8f0'};background:${isNA?'#f1f5f9':'#fff'};font-size:0.78rem;font-weight:700;color:#475569;white-space:nowrap;">
-              <input type="checkbox" onchange="dsToggleNA('${item.id}',this.checked)" ${isNA?'checked':''} style="accent-color:#94a3b8;"> Not applicable
-            </label>
-          </div>`;
-        } else {
-          // Radio buttons using item.options
-          const optColors = {
-            'Yes':['#16a34a','#dcfce7'],
-            'No':['#dc2626','#fee2e2'],
-            "Don't know":['#d97706','#fef9c3'],
-            'Not applicable':['#94a3b8','#f1f5f9'],
-          };
-          inputHtml = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-            ${item.options.map(opt => {
-              const [col, bg] = optColors[opt] || ['#475569','#f8fafc'];
-              const active = val === opt;
-              return `<label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 14px;border-radius:7px;border:2px solid ${active?col:'#e2e8f0'};background:${active?bg:'#fff'};font-size:0.78rem;font-weight:700;color:${active?col:'#475569'};white-space:nowrap;">
-                <input type="radio" name="${item.id}" value="${opt}" onchange="msTick('${item.id}','${opt}')" ${active?'checked':''} style="accent-color:${col};"> ${opt}
-              </label>`;
-            }).join('')}
-          </div>`;
-        }
-
-        return `<div style="padding:16px 18px;${isLast?'':'border-bottom:1px solid #f1f5f9;'}background:${rowBg}">
-          <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;">
-            <div style="font-size:0.68rem;font-weight:800;color:#94a3b8;flex-shrink:0;min-width:20px;margin-top:3px;">${itemNum}</div>
-            <div style="flex:1;">
-              <div style="font-size:0.83rem;font-weight:700;color:#0A2F5C;line-height:1.55;margin-bottom:6px;">${item.question}</div>
-              <div style="font-size:0.71rem;color:#94a3b8;line-height:1.5;font-style:italic;margin-bottom:10px;">📌 ${item.note}</div>
-              ${inputHtml}
-              <input type="text" placeholder="Additional details / explanation…" value="${noteVal}" onchange="msNote('${item.id}',this.value)" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:7px 11px;font-family:Montserrat,sans-serif;font-size:0.78rem;box-sizing:border-box;background:#fafafa;">
-            </div>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>
-  `).join('');
+  // Attach event listeners after rendering (avoids inline handler escaping issues)
+  el.querySelectorAll('input[type=radio]').forEach(function(inp){
+    inp.addEventListener('change', function(){ msTick(this.dataset.id, this.value); });
+  });
+  el.querySelectorAll('input[type=date]').forEach(function(inp){
+    inp.addEventListener('change', function(){ if(this.value) msTick(this.dataset.id, this.value); });
+  });
+  el.querySelectorAll('input[type=checkbox]').forEach(function(inp){
+    inp.addEventListener('change', function(){ dsToggleNA(this.dataset.id, this.checked); });
+  });
+  el.querySelectorAll('.ds-note-input').forEach(function(inp){
+    inp.addEventListener('change', function(){ msNote(this.dataset.id, this.value); });
+  });
 }
-
-function dsToggleNA(id, isNA) {
-  const saved = JSON.parse(localStorage.getItem('owner_ds_checklist') || '{}');
-  if (isNA) {
-    saved[id] = 'Not applicable';
-    const dateEl = document.getElementById('ds_date_'+id);
-    if (dateEl) { dateEl.disabled = true; dateEl.style.opacity = '0.4'; }
-  } else {
-    saved[id] = '';
-    const dateEl = document.getElementById('ds_date_'+id);
-    if (dateEl) { dateEl.disabled = false; dateEl.style.opacity = '1'; }
-  }
-  localStorage.setItem('owner_ds_checklist', JSON.stringify(saved));
-  renderMinStandards();
-}
-
 function msTick(id, value) {
   const saved = JSON.parse(localStorage.getItem('owner_ds_checklist') || '{}');
   saved[id] = value;
