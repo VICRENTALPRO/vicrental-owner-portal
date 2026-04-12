@@ -1957,6 +1957,21 @@ function saveDisclosureToVault() {
   renderOwnerVault();
 }
 
+const VAULT_ICONS_O = {
+  'Compliance Certificate': '📋',
+  'Inspection Report': '🔍',
+  'Invoice': '💰',
+  'Lease Agreement': '📄',
+  'Insurance': '🛡️',
+  'Disclosure Statement': '📝',
+  'Work Order': '🔧',
+  'Other': '📁',
+};
+
+function escHtml(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 function renderOwnerVault() {
   const search = (document.getElementById('ownerVaultSearch')?.value || '').toLowerCase();
   const catFilter = document.getElementById('ownerVaultCat')?.value || 'all';
@@ -2001,26 +2016,37 @@ function renderOwnerVault() {
   const formatSize = (b) => b < 1048576 ? `${(b/1024).toFixed(0)} KB` : `${(b/1048576).toFixed(1)} MB`;
   const formatDate = (iso) => new Date(iso).toLocaleDateString('en-AU',{day:'2-digit',month:'short',year:'numeric'});
 
-  grid.innerHTML = `<div class="owner-vault-grid">${docs.map(doc => {
-    const icon = VAULT_ICONS_O[doc.category] || '📁';
-    const previewContent = doc.isImage
-      ? `<img src="${doc.dataUrl}" alt="${doc.name}" loading="lazy">`
-      : `<span style="font-size:2.8rem;position:relative;z-index:1;">${icon}</span>`;
+  // Store docs list for onclick lookup by index
+  window._ownerVaultDocs = docs;
 
-    return `<div class="owner-vault-card">
-      <div class="ovc-preview" onclick="openOwnerDocModal('${doc.id}')">${previewContent}</div>
-      <div class="ovc-body">
-        <div class="ovc-cat">${doc.category}</div>
-        <div class="ovc-name">${escHtml(doc.name)}</div>
-        ${doc.property ? `<div class="ovc-prop">📍 ${escHtml(doc.property)}</div>` : ''}
-        <div class="ovc-meta">${doc.fileName} · ${formatSize(doc.fileSize)} · ${formatDate(doc.uploadedAt)}</div>
-      </div>
-      <div class="ovc-actions">
-        <button class="ovc-btn" onclick="openOwnerDocModal('${doc.id}')">👁 View</button>
-        <button class="ovc-btn" onclick="downloadOwnerDoc('${doc.id}')">⬇ Download</button>
-      </div>
-    </div>`;
-  }).join('')}</div>`;
+  grid.innerHTML = '<div class="owner-vault-grid">' + docs.map(function(doc, i) {
+    var icon = VAULT_ICONS_O[doc.category] || '📁';
+    var dateStr = doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString('en-AU',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+    return '<div class="owner-vault-card">' +
+      '<div class="ovc-preview" onclick="openOwnerDocByIndex(' + i + ')" style="cursor:pointer;">' +
+        '<span style="font-size:2.8rem;">' + icon + '</span>' +
+      '</div>' +
+      '<div class="ovc-body">' +
+        '<div class="ovc-cat">' + escHtml(doc.category) + '</div>' +
+        '<div class="ovc-name">' + escHtml(doc.name) + '</div>' +
+        (doc.property ? '<div class="ovc-prop">📍 ' + escHtml(doc.property) + '</div>' : '') +
+        '<div class="ovc-meta">' + escHtml(doc.fileName || '') + ' · ' + dateStr + '</div>' +
+      '</div>' +
+      '<div class="ovc-actions">' +
+        '<button class="ovc-btn" onclick="openOwnerDocByIndex(' + i + ')">👁 View</button>' +
+        '<button class="ovc-btn" onclick="downloadOwnerDocByIndex(' + i + ')">⬇ Download</button>' +
+      '</div>' +
+    '</div>';
+  }).join('') + '</div>';
+}
+
+function openOwnerDocByIndex(i) {
+  const doc = (window._ownerVaultDocs || [])[i];
+  if (doc) openOwnerDocModal(doc.id);
+}
+function downloadOwnerDocByIndex(i) {
+  const doc = (window._ownerVaultDocs || [])[i];
+  if (doc) downloadOwnerDoc(doc.id);
 }
 
 function getOwnerDoc(docId) {
@@ -2040,21 +2066,20 @@ function getOwnerDoc(docId) {
 
 function openOwnerDocModal(docId) {
   const doc = getOwnerDoc(docId);
-  if (!doc) return;
+  if (!doc) { alert('Document not found.'); return; }
   document.getElementById('ownerDocTitle').textContent = doc.name;
   const body = document.getElementById('ownerDocBody');
-  if (doc.isImage) {
-    body.innerHTML = `<img src="${doc.dataUrl}" alt="${doc.name}">`;
-  } else {
-    body.innerHTML = `<div style="text-align:center;padding:32px;">
-      <div style="font-size:4rem;margin-bottom:16px;">${VAULT_ICONS_O[doc.category]||'📁'}</div>
-      <div style="font-size:0.95rem;font-weight:600;margin-bottom:6px;">${escHtml(doc.fileName)}</div>
-      <div style="font-size:0.8rem;color:var(--muted);margin-bottom:18px;">Click Download to save this file</div>
-    </div>`;
-  }
+  const icon = VAULT_ICONS_O[doc.category] || '📁';
+  body.innerHTML = '<div style="text-align:center;padding:32px;">' +
+    '<div style="font-size:4rem;margin-bottom:16px;">' + icon + '</div>' +
+    '<div style="font-size:0.95rem;font-weight:600;margin-bottom:6px;">' + escHtml(doc.fileName||doc.name) + '</div>' +
+    '<div style="font-size:0.8rem;color:var(--muted);margin-bottom:18px;">Click Download to open this document</div>' +
+  '</div>';
   const dl = document.getElementById('ownerDocDownload');
-  dl.href = doc.dataUrl;
-  dl.download = doc.fileName;
+  // Store docId on button for download handler
+  dl.dataset.docId = docId;
+  dl.onclick = function(e) { e.preventDefault(); downloadOwnerDoc(docId); };
+  dl.href = '#';
   document.getElementById('ownerDocModal').classList.add('open');
 }
 
@@ -2064,10 +2089,25 @@ function closeOwnerDocModal() {
 
 function downloadOwnerDoc(docId) {
   const doc = getOwnerDoc(docId);
-  if (!doc) return;
-  const a = document.createElement('a');
-  a.href = doc.dataUrl; a.download = doc.fileName; a.click();
-  toast(`Downloading ${doc.fileName}`, 'ok');
+  if (!doc) { alert('Document not found.'); return; }
+  let html = null;
+  if (doc.htmlKey) {
+    html = localStorage.getItem(doc.htmlKey);
+  }
+  if (html) {
+    const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = doc.fileName || 'document.html';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  } else if (doc.dataUrl) {
+    const a = document.createElement('a');
+    a.href = doc.dataUrl; a.download = doc.fileName || 'document.html';
+    a.click();
+  } else {
+    alert('Document content not found. It may have been cleared from storage.');
+  }
 }
 
 function seedDemo() {
