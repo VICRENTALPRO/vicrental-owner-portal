@@ -1952,9 +1952,30 @@ function saveDisclosureToVault() {
   sharedVault.unshift(doc);
   S.set(KEY_VAULT, sharedVault);
 
+  // Generate a push link for the PM portal and show it
+  const pmPushPayload = btoa(unescape(encodeURIComponent(JSON.stringify({
+    type: 'vault_doc',
+    doc: { ...doc, htmlContent: html }
+  }))));
+  const pmPushLink = 'https://loquacious-kulfi-ff795a.netlify.app#vrdoc=' + pmPushPayload;
+  window._lastPmPushLink = pmPushLink;
+  window._lastDocId = docId;
+
   const msg = document.getElementById('dsSaveMsg');
-  if (msg) { msg.textContent = '✅ Saved to Document Vault — view under the 🗄️ Documents tab.'; msg.style.display = ''; setTimeout(() => msg.style.display = 'none', 4000); }
+  if (msg) {
+    msg.innerHTML = '✅ Saved to Document Vault. <button onclick="pushDocToPMPortal()" style="margin-left:10px;padding:4px 12px;background:#0A2F5C;color:#fff;border:none;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:Montserrat,sans-serif;">📤 Push to VicRental Pro Vault</button>';
+    msg.style.display = '';
+    setTimeout(() => { if(msg.style.display !== 'none') msg.style.display = 'none'; }, 15000);
+  }
   renderOwnerVault();
+}
+
+function pushDocToPMPortal() {
+  if (!window._lastPmPushLink) return;
+  // Open PM portal with the encoded doc — PM portal will detect #vrdoc= and save to its vault
+  window.open(window._lastPmPushLink, '_blank');
+  const msg = document.getElementById('dsSaveMsg');
+  if (msg) msg.innerHTML = '✅ Saved. PM portal opened — the document will be added to VicRental Pro vault automatically.';
 }
 
 const VAULT_ICONS_O = {
