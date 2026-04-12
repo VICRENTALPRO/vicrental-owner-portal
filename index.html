@@ -1815,7 +1815,7 @@ function buildDisclosureHtml() {
   const today   = new Date().toLocaleDateString('en-AU',{day:'2-digit',month:'long',year:'numeric'});
 
   const answered = DS_ITEMS.filter(s => saved[s.id]).length;
-  const noCount  = DS_ITEMS.filter(s => saved[s.id] === 'no').length;
+  const noCount  = DS_ITEMS.filter(s => saved[s.id] === 'No').length;
 
   const rows = DS_ITEMS.map((item, i) => {
     const val  = saved[item.id] || '';
@@ -1837,8 +1837,6 @@ function buildDisclosureHtml() {
       <td style="padding:9px 12px;font-size:11px;color:#475569;">${note||'—'}</td>
     </tr>`;
   }).join('');
-
-  return
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rental Property Disclosure Statement</title>
   <style>
@@ -1919,24 +1917,29 @@ function saveDisclosureToVault() {
   const addr  = document.getElementById('dsAddress')?.value || currentProperty || '—';
   const date  = document.getElementById('dsDate')?.value || new Date().toISOString().split('T')[0];
   const saved = JSON.parse(localStorage.getItem('owner_ds_checklist') || '{}');
-  const noCount = DS_ITEMS.filter(s => saved[s.id] === 'no').length;
+  const noCount = DS_ITEMS.filter(s => saved[s.id] === 'No').length;
   const docId = 'DS-' + Date.now();
-  const vault = JSON.parse(localStorage.getItem('vicrental_vault') || '[]');
-  vault.unshift({
+
+  // Save to owner's own local vault (separate from PM vault)
+  const ownerVaultKey = 'owner_vault_' + currentOwner.toLowerCase().replace(/\s+/g,'_');
+  const ownerVault = JSON.parse(localStorage.getItem(ownerVaultKey) || '[]');
+  const doc = {
     id: docId,
-    name: 'Disclosure Statement — ' + addr.split(',')[0].trim() + (noCount ? ' ⚠️ ' + noCount + ' items require attention' : ' ✅'),
+    name: 'Disclosure Statement — ' + addr.split(',')[0].trim() + (noCount ? ' ⚠️ ' + noCount + ' items: No' : ' ✅'),
     type: 'disclosure_statement',
     category: 'Disclosure Statement',
     fileName: 'DisclosureStatement_' + addr.replace(/[^a-z0-9]/gi,'_').substring(0,25) + '.html',
     property: addr,
     date: date,
     uploadedAt: new Date().toISOString(),
-    ownerVisible: true,
+    ownerVisible: 'yes',
     fileType: 'html',
     isHtml: true,
     dataUrl: 'data:text/html;charset=utf-8,' + encodeURIComponent(html),
-  });
-  localStorage.setItem('vicrental_vault', JSON.stringify(vault));
+  };
+  ownerVault.unshift(doc);
+  localStorage.setItem(ownerVaultKey, JSON.stringify(ownerVault));
+
   const msg = document.getElementById('dsSaveMsg');
   if (msg) { msg.textContent = '✅ Saved to Document Vault — view under the 🗄️ Documents tab.'; msg.style.display = ''; setTimeout(() => msg.style.display = 'none', 4000); }
   renderOwnerVault();
@@ -1946,30 +1949,35 @@ function renderOwnerVault() {
   const search = (document.getElementById('ownerVaultSearch')?.value || '').toLowerCase();
   const catFilter = document.getElementById('ownerVaultCat')?.value || 'all';
 
-  // Only show docs marked ownerVisible = 'yes'
-  let docs = S.get(KEY_VAULT, []).filter(d => d.ownerVisible === 'yes');
-
-  // Filter by this owner's properties
+  // Docs from PM portal (ownerVisible = 'yes') filtered to this owner's properties
+  let pmDocs = S.get(KEY_VAULT, []).filter(d => d.ownerVisible === 'yes');
   const allPortal = S.get('vicrental_portal', []);
   const ownerProps = [...new Set(allPortal
     .filter(p => p.ownerName?.toLowerCase() === currentOwner.toLowerCase())
     .map(p => p.property))];
+  if (ownerProps.length) {
+    pmDocs = pmDocs.filter(d => !d.property || ownerProps.some(p => p.toLowerCase().includes(d.property.toLowerCase()) || d.property.toLowerCase().includes(p.toLowerCase())));
+  }
 
-  // Show docs that match owner's properties OR have no property set
-  docs = docs.filter(d => !d.property || ownerProps.some(p => p.toLowerCase().includes(d.property.toLowerCase()) || d.property.toLowerCase().includes(p.toLowerCase())));
+  // Owner's own saved documents (disclosure statements etc)
+  const ownerVaultKey = 'owner_vault_' + currentOwner.toLowerCase().replace(/\s+/g,'_');
+  const ownerDocs = JSON.parse(localStorage.getItem(ownerVaultKey) || '[]');
+
+  // Merge: owner docs first, then PM docs
+  let docs = [...ownerDocs, ...pmDocs];
 
   if (catFilter !== 'all') docs = docs.filter(d => d.category === catFilter);
   if (search) docs = docs.filter(d =>
-    d.name.toLowerCase().includes(search) ||
-    d.category.toLowerCase().includes(search) ||
-    (d.property || '').toLowerCase().includes(search)
+    (d.name||'').toLowerCase().includes(search) ||
+    (d.category||'').toLowerCase().includes(search) ||
+    (d.property||'').toLowerCase().includes(search)
   );
 
   const grid = document.getElementById('ownerVaultGrid');
   if (!grid) return;
 
   if (docs.length === 0) {
-    const allVisible = S.get(KEY_VAULT, []).filter(d => d.ownerVisible === 'yes').length;
+    const allVisible = [...ownerDocs, ...S.get(KEY_VAULT, []).filter(d => d.ownerVisible === 'yes')].length;
     grid.innerHTML = `<div style="text-align:center;padding:52px 24px;color:var(--muted);">
       <div style="font-size:3rem;margin-bottom:14px;">🗄️</div>
       <div style="font-family:'Montserrat', sans-serif;font-size:1.3rem;color:var(--text);margin-bottom:8px;">${allVisible === 0 ? 'No documents shared yet' : 'No documents match'}</div>
