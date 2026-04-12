@@ -1176,9 +1176,8 @@ const API_BASE = 'https://vicrental-backend1-production.up.railway.app/api';
         <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:0.78rem;color:#92400e;line-height:1.7;">
           ⚠️ <strong>Important:</strong> Providing false or misleading information in a disclosure statement is an offence under the <em>Residential Tenancies Act 1997</em> (Vic). All known material facts must be disclosed.
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+        <div style="margin-bottom:14px;">
           <div><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Landlord / Agent Signature</label><input type="text" id="dsSigOwner" placeholder="Type full name as signature" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;font-style:italic;"></div>
-          <div><label style="font-size:0.72rem;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Tenant Acknowledgement</label><input type="text" id="dsSigTenant" placeholder="Type full name as acknowledgement" style="width:100%;border:1px solid #e2e8f0;border-radius:7px;padding:8px 11px;font-family:Montserrat,sans-serif;font-size:0.82rem;box-sizing:border-box;font-style:italic;"></div>
         </div>
         <div style="margin-bottom:16px;"><label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;"><input type="checkbox" id="dsConfirm" style="margin-top:3px;width:15px;height:15px;flex-shrink:0;accent-color:#0A2F5C;"><span style="font-size:0.78rem;color:#475569;line-height:1.6;">I confirm the information in this disclosure statement is <strong>true and correct</strong> to the best of my knowledge as at the date above, in accordance with the <em>Residential Tenancies Act 1997</em> (Victoria).</span></label></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -1288,6 +1287,7 @@ const KEY_PORT    = 'vicrental_portal';
 const KEY_OWNERS  = 'vicrental_owners';
 const KEY_REVIEWS = 'vicrental_owner_reviews';
 const KEY_SESSION = 'vicrental_owner_session';
+const KEY_VAULT   = 'vicrental_vault';
 
 // ═══════════════════════════════════════════════
 // DEFAULT OWNERS (property manager sets these up
@@ -1741,7 +1741,7 @@ function renderMinStandards() {
       itemNum++;
       var val = saved[item.id]||'';
       var note = (saved[item.id+'_note']||'').replace(/"/g,'&quot;');
-      var rowBg = val==='Yes'?'#f0fdf4':val==='No'?'#fff5f5':'#fff';
+      var rowBg = '#fff';
       var border = i<items.length-1?'border-bottom:1px solid #f1f5f9;':'';
       html += '<div style="padding:16px 18px;'+border+'background:'+rowBg+'" id="ds_row_'+item.id+'">';
       html += '<div style="display:flex;gap:10px;align-items:flex-start;">';
@@ -1760,10 +1760,9 @@ function renderMinStandards() {
       } else {
         html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">';
         item.options.forEach(function(opt){
-          var colors = optColors[opt]||['#475569','#f8fafc'];
           var active = val===opt;
-          html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 14px;border-radius:7px;border:2px solid '+(active?colors[0]:'#e2e8f0')+';background:'+(active?colors[1]:'#fff')+';font-size:0.78rem;font-weight:700;color:'+(active?colors[0]:'#475569')+';white-space:nowrap;">';
-          html += '<input type="radio" name="'+item.id+'" value="'+opt+'" data-id="'+item.id+'" '+(active?'checked':'')+' style="accent-color:'+colors[0]+';"> '+opt+'</label>';
+          html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 14px;border-radius:7px;border:2px solid '+(active?'#0A2F5C':'#e2e8f0')+';background:'+(active?'#eaf6fe':'#fff')+';font-size:0.78rem;font-weight:700;color:#0A2F5C;white-space:nowrap;">';
+          html += '<input type="radio" name="'+item.id+'" value="'+opt+'" data-id="'+item.id+'" '+(active?'checked':'')+' style="accent-color:#0A2F5C;"> '+opt+'</label>';
         });
         html += '</div>';
       }
@@ -1810,7 +1809,6 @@ function buildDisclosureHtml() {
   const rent   = document.getElementById('dsRent')?.value || '—';
   const date   = document.getElementById('dsDate')?.value || '';
   const sigOwner  = document.getElementById('dsSigOwner')?.value || '';
-  const sigTenant = document.getElementById('dsSigTenant')?.value || '';
   const dateStr = date ? new Date(date).toLocaleDateString('en-AU',{day:'2-digit',month:'long',year:'numeric'}) : '—';
   const today   = new Date().toLocaleDateString('en-AU',{day:'2-digit',month:'long',year:'numeric'});
 
@@ -1880,9 +1878,8 @@ function buildDisclosureHtml() {
     </tr></thead>
     <tbody>${rows}</tbody>
   </table>
-  <div class="sig-grid">
-    <div class="sig-box"><div class="sig-lbl">Landlord / Agent Signature</div><div class="sig-name">${sigOwner}</div><div class="sig-date">Signed: ${dateStr}</div></div>
-    <div class="sig-box"><div class="sig-lbl">Tenant Acknowledgement</div><div class="sig-name">${sigTenant}</div><div class="sig-date">Acknowledged: ${dateStr}</div></div>
+  <div style="margin-top:20px;">
+    <div class="sig-box" style="max-width:340px;"><div class="sig-lbl">Landlord / Agent Signature</div><div class="sig-name">${sigOwner}</div><div class="sig-date">Signed: ${dateStr}</div></div>
   </div>
   <div class="footer">
     Generated: ${today} via VicRental Pro Owner Portal · 
@@ -1920,9 +1917,7 @@ function saveDisclosureToVault() {
   const noCount = DS_ITEMS.filter(s => saved[s.id] === 'No').length;
   const docId = 'DS-' + Date.now();
 
-  // Save to owner's own local vault (separate from PM vault)
-  const ownerVaultKey = 'owner_vault_' + currentOwner.toLowerCase().replace(/\s+/g,'_');
-  const ownerVault = JSON.parse(localStorage.getItem(ownerVaultKey) || '[]');
+  // Save to both the shared vault key AND owner's own vault key
   const doc = {
     id: docId,
     name: 'Disclosure Statement — ' + addr.split(',')[0].trim() + (noCount ? ' ⚠️ ' + noCount + ' items: No' : ' ✅'),
@@ -1937,6 +1932,13 @@ function saveDisclosureToVault() {
     isHtml: true,
     dataUrl: 'data:text/html;charset=utf-8,' + encodeURIComponent(html),
   };
+  // Save to shared KEY_VAULT (vicrental_vault)
+  const sharedVault = S.get(KEY_VAULT, []);
+  sharedVault.unshift(doc);
+  S.set(KEY_VAULT, sharedVault);
+  // Also save to owner's own local vault key for display
+  const ownerVaultKey = 'owner_vault_' + currentOwner.toLowerCase().replace(/\s+/g,'_');
+  const ownerVault = JSON.parse(localStorage.getItem(ownerVaultKey) || '[]');
   ownerVault.unshift(doc);
   localStorage.setItem(ownerVaultKey, JSON.stringify(ownerVault));
 
