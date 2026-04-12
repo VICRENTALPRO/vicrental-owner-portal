@@ -2056,9 +2056,26 @@ function renderOwnerVault() {
       '<div class="ovc-actions">' +
         '<button class="ovc-btn" onclick="openOwnerDocByIndex(' + i + ')">👁 View</button>' +
         '<button class="ovc-btn" onclick="downloadOwnerDocByIndex(' + i + ')">⬇ Download</button>' +
+        '<button class="ovc-btn" onclick="deleteOwnerDoc(\'' + doc.id + '\')" style="color:#dc2626;border-color:#fca5a5;" title="Delete document">✕ Delete</button>' +
       '</div>' +
     '</div>';
   }).join('') + '</div>';
+}
+
+function deleteOwnerDoc(docId) {
+  if (!confirm('Delete this document? This cannot be undone.')) return;
+  // Remove from owner's own vault key
+  const ownerVaultKey = 'owner_vault_' + currentOwner.toLowerCase().replace(/\s+/g,'_');
+  const ownerVault = JSON.parse(localStorage.getItem(ownerVaultKey) || '[]');
+  const filtered = ownerVault.filter(d => String(d.id) !== String(docId));
+  localStorage.setItem(ownerVaultKey, JSON.stringify(filtered));
+  // Remove from shared KEY_VAULT
+  const shared = S.get(KEY_VAULT, []).filter(d => String(d.id) !== String(docId));
+  S.set(KEY_VAULT, shared);
+  // Remove stored HTML if present
+  localStorage.removeItem('ds_html_' + docId);
+  localStorage.removeItem('vault_html_' + docId);
+  renderOwnerVault();
 }
 
 function openOwnerDocByIndex(i) {
